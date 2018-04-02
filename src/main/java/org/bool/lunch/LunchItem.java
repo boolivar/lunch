@@ -1,27 +1,48 @@
 package org.bool.lunch;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class LunchItem {
+
+	private String name;
 	
-	private String className;
+	private String type;
+	
+	private String command;
 	
 	private List<String> args;
 	
 	public LunchItem() {
 	}
 	
-	public LunchItem(String className) {
-		this.className = className;
+	public LunchItem(String command) {
+		this.command = command;
 	}
 	
-	public String getClassName() {
-		return className;
+	public String getName() {
+		return name;
 	}
 
-	public void setClassName(String className) {
-		this.className = className;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
 	}
 
 	public List<String> getArgs() {
@@ -31,16 +52,15 @@ public class LunchItem {
 	public void setArgs(List<String> args) {
 		this.args = args;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "LunchItem [className=" + className + ", args=" + args + "]";
+		return "LunchItem [name=" + name + ", type=" + type + ", command=" + command + ", args=" + args + "]";
 	}
-	
+
 	@Override
 	public int hashCode() {
-		int result = 31 + Objects.hashCode(args);
-		return 31 * result + Objects.hashCode(className);
+		return Objects.hash(name, type, command, args);
 	}
 
 	@Override
@@ -50,7 +70,8 @@ public class LunchItem {
 		}
 		if (obj != null && getClass() == obj.getClass()) {
 			LunchItem other = (LunchItem) obj;
-			return Objects.equals(className, other.className) && Objects.equals(args, other.args);
+			return Arrays.asList(name, type, command, args)
+					.equals(Arrays.asList(other.name, other.type, other.command, other.args));
 		}
 		return false;
 	}

@@ -12,7 +12,7 @@ public class LunchItemTest {
 	@Test
 	public void testLunchItem() {
 		LunchItem item = new LunchItem();
-		item.setClassName("TestClass1");
+		item.setCommand("TestClass1");
 		
 		ArrayList<String> args1 = new ArrayList<>();
 		args1.add("test arg1");
@@ -27,8 +27,26 @@ public class LunchItemTest {
 	
 	private LunchItem lunchItem() {
 		LunchItem item1 = new LunchItem();
-		item1.setClassName("TestClass1");
+		item1.setCommand("TestClass1");
 		item1.setArgs(Arrays.asList("test arg1", "test arg2"));
 		return item1;
+	}
+	
+	@Test
+	public void testEmptyItems() {
+		LunchItem item1 = new LunchItem();
+		LunchItem item2 = new LunchItem();
+		
+		Assert.assertEquals(item1, item2);
+		Assert.assertEquals(item1.hashCode(), item2.hashCode());
+	}
+	
+	@Test
+	public void testSingleCommandItems() {
+		LunchItem item1 = new LunchItem("TestCommand");
+		LunchItem item2 = new LunchItem("TestCommand");
+		
+		Assert.assertEquals(item1, item2);
+		Assert.assertEquals(item1.hashCode(), item2.hashCode());
 	}
 }

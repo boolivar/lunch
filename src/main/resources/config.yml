@@ -1,8 +1,8 @@
 items: 
-- className: org.apache.zookeeper.server.quorum.QuorumPeerMain
+- command: org.apache.zookeeper.server.quorum.QuorumPeerMain
   args:
   - C:\bin\kafka_2.11-1.0.0\config\zookeeper.properties
-- className: kafka.Kafka
+- command: kafka.Kafka
   args:
   - C:\bin\kafka_2.11-1.0.0\config\server.properties
   

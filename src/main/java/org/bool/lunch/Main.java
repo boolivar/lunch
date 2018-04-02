@@ -29,9 +29,9 @@ public class Main {
     private static void run(List<LunchItem> items) throws ClassNotFoundException {
     	ExecutorService pool = Executors.newFixedThreadPool(items.size());
     	for (LunchItem item : items) {
-    		Luncher luncher = Luncher.create(item.getClassName(), item.getArgs());
+    		Luncher luncher = Luncher.create(item.getCommand(), item.getArgs());
     		pool.execute(luncher);
-    		log.info("Started {} with arguments: {}", item.getClassName(), item.getArgs());
+    		log.info("Started {} with arguments: {}", item.getCommand(), item.getArgs());
     	}
     	pool.shutdown();
     }

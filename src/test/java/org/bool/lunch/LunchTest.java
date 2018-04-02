@@ -15,7 +15,7 @@ public class LunchTest {
 		Lunch lunch = new Lunch();
 		
 		LunchItem item1 = new LunchItem();
-		item1.setClassName("testItem1");
+		item1.setCommand("testItem1");
 		
 		ArrayList<String> args1 = new ArrayList<>();
 		args1.add("item1 arg1");
@@ -24,7 +24,7 @@ public class LunchTest {
 		item1.setArgs(args1);
 		
 		LunchItem item2 = new LunchItem();
-		item2.setClassName("testItem2");
+		item2.setCommand("testItem2");
 		
 		ArrayList<String> args2 = new ArrayList<>();
 		args2.add("item2 arg1");
@@ -47,12 +47,10 @@ public class LunchTest {
 	private Lunch makeLunch() {
 		Lunch lunch = new Lunch();
 		
-		LunchItem item1 = new LunchItem();
-		item1.setClassName("testItem1");
+		LunchItem item1 = new LunchItem("testItem1");
 		item1.setArgs(Arrays.asList("item1 arg1", "item1 arg2"));
 		
-		LunchItem item2 = new LunchItem();
-		item2.setClassName("testItem2");
+		LunchItem item2 = new LunchItem("testItem2");
 		item2.setArgs(Arrays.asList("item2 arg1", "item2 arg2"));
 		
 		lunch.setItems(Arrays.asList(item1, item2));
