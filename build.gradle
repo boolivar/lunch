@@ -1,4 +1,7 @@
-apply plugin: 'application'
+plugins {
+	id 'application'
+	id 'ru.vyarus.quality' version '3.0.0'
+}
 
 mainClassName = 'org.bool.lunch.Main'
 
@@ -23,4 +26,9 @@ dependencies {
 	}
 
 	testCompile 'junit:junit:4.12'
+}
+
+quality {
+	strict = false
+	pmd = false
 }
