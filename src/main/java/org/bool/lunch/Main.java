@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +40,7 @@ public class Main {
     private static Lunch loadLunch(String fileName) throws IOException {
     	log.info("Read lunch from file: {}", fileName);
     	try (InputStream in = openStream(fileName)) {
-    		YamlReader reader = new YamlReader(new InputStreamReader(in));
+    		YamlReader reader = new YamlReader(new InputStreamReader(in, StandardCharsets.UTF_8));
     		return reader.read(Lunch.class);
     	}
     }
