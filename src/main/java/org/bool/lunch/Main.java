@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,18 +20,14 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, IOException, ReflectiveOperationException {
     	Lunch lunch = loadLunch(args.length > 0 ? args[0] : null);
     	log.info("Lunch loaded: {}", lunch);
-    	run(lunch.getItems());
+    	run(lunch);
     	log.info("Lunch started");
     }
     
-    private static void run(List<LunchItem> items) throws ClassNotFoundException {
-    	ExecutorService pool = Executors.newFixedThreadPool(items.size());
-    	for (LunchItem item : items) {
-    		Luncher luncher = Luncher.create(item.getCommand(), item.getArgs());
-    		pool.execute(luncher);
-    		log.info("Started {} with arguments: {}", item.getCommand(), item.getArgs());
-    	}
-    	pool.shutdown();
+    private static void run(Lunch lunch) throws ClassNotFoundException {
+    	RunnerFactory factory = new RunnerFactory();
+    	LunchPad lunchPad = new LunchPad(factory::lookup);
+    	lunchPad.launch(lunch);
     }
     
     private static Lunch loadLunch(String fileName) throws IOException {
