@@ -1,9 +1,14 @@
 package org.bool.lunch;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class RunnerFactory {
 
@@ -47,6 +52,15 @@ public class RunnerFactory {
 	}
 	
 	private String classpath() {
-		return "";
+		return Arrays.stream(getClassLoader().getURLs())
+				.map(URL::getFile).collect(Collectors.joining(File.pathSeparator));
+	}
+	
+	private URLClassLoader getClassLoader() {
+		ClassLoader classLoader = RunnerFactory.class.getClassLoader();
+		if (classLoader instanceof URLClassLoader) {
+			return (URLClassLoader) classLoader;
+		}
+		return (URLClassLoader) ClassLoader.getSystemClassLoader();
 	}
 }
