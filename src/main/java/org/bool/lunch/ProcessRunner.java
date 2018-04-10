@@ -6,7 +6,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ProcessRunner implements Runner {
+	
+	private static final Logger log = LoggerFactory.getLogger(ProcessRunner.class);
 
 	private Redirect redirectOutput = Redirect.INHERIT;
 	
@@ -29,6 +34,7 @@ public class ProcessRunner implements Runner {
 	}
 	
 	public Process run(List<String> args) {
+		log.info("Start process with args: {}", args);
 		ProcessBuilder builder = new ProcessBuilder(args);
 		builder.redirectOutput(redirectOutput);
 		builder.redirectErrorStream(redirectErrorStream);

@@ -3,8 +3,12 @@ package org.bool.lunch;
 import java.util.Collection;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClassRunner implements Runner {
+	
+	private static final Logger log = LoggerFactory.getLogger(ClassRunner.class);
 
 	private final String method;
 	
@@ -36,6 +40,7 @@ public class ClassRunner implements Runner {
 	}
 	
 	public static Object run(Class<?> cls, String method, Collection<String> args) throws ReflectiveOperationException {
+		log.info("Run class {}, method {}, args {}", cls, method, args);
 		return MethodUtils.invokeStaticMethod(cls, method, new Object[] { args }, new Class[] { String[].class });
 	}
 }
