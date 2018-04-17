@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 
 import org.bool.jpid.PidUtils;
 import org.slf4j.Logger;
@@ -15,24 +15,31 @@ public class LunchPad {
 
 	private static final Logger log = LoggerFactory.getLogger(LunchPad.class);
 	
-	private final Function<String, Runner> mapper;
+	private final LunchRunner runner;
 
-	public LunchPad(Function<String, Runner> mapper) {
-		this.mapper = mapper;
+	public LunchPad(LunchRunner runner) {
+		this.runner = runner;
 	}
 	
 	public void launch(Lunch lunch) {
 		List<Process> processes = new ArrayList<>();
 		try {
-			CompletionService<Process> completion = new ExecutorCompletionService<>(Executors.newCachedThreadPool());
-			for (LunchItem item : lunch.getItems()) {
-				Process process = launch(item);
-				if (process != null) {
-					processes.add(process);
-					completion.submit(() -> await(process));
+			ExecutorService executor = Executors.newCachedThreadPool();
+			try {
+				CompletionService<Process> completion = new ExecutorCompletionService<>(executor);
+				for (LunchItem item : lunch.getItems()) {
+					Process process = runner.lunch(item);
+					String pid = processId(process);
+					if (process != null) {
+						processes.add(process);
+						completion.submit(() -> await(pid, process));
+					}
+					log.info("Process {} for {} started", pid);
 				}
+				completion.take().get();
+			} finally {
+				executor.shutdown();
 			}
-			completion.take().get();
 		} catch (Exception e) {
 			log.error("Lunch terminated", e);
 		} finally {
@@ -40,21 +47,12 @@ public class LunchPad {
 		}
 	}
 
-	public Process launch(LunchItem item) {
-		Runner runner = lookupRunner(item.getType());
-		Process process = runner.run(item.getCommand(), item.getArgs());
-		if (log.isInfoEnabled()) {
-			log.info("Process {} started for {} with arguments: {}", processId(process), item.getCommand(), item.getArgs());
-		}
+	private Process await(String pid, Process process) throws InterruptedException {
+		int exitCode = process.waitFor();
+		log.info("Exit code {} for process {}", exitCode, pid);
 		return process;
 	}
 	
-	private Process await(Process process) throws InterruptedException {
-		int exitCode = process.waitFor();
-		log.info("Exit code {} for process {}", exitCode, process);
-		return process;
-	}
-
 	private String processId(Process process) {
 		if (process == null) {
 			return "this(" + PidUtils.getPid() + ")";
@@ -65,12 +63,5 @@ public class LunchPad {
 			log.warn("Error reading processId", e);
 		}
 		return "unknown";
-	}
-	
-	private Runner lookupRunner(String type) {
-		if (type == null) {
-			type = RunnerType.JAVA.name();
-		}
-		return mapper.apply(type.toUpperCase());
 	}
 }

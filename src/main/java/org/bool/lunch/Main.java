@@ -21,13 +21,14 @@ public class Main {
     	Lunch lunch = loadLunch(args.length > 0 ? args[0] : null);
     	log.info("Lunch loaded: {}", lunch);
     	run(lunch);
-    	log.info("Lunch started");
+    	log.info("Lunch finished");
     }
     
     private static void run(Lunch lunch) throws ClassNotFoundException {
     	CachedRunnerFactory<String> factory = new CachedRunnerFactory<>(new DefaultRunnerFactory(), RunnerType::valueOf);
-    	LunchPad lunchPad = new LunchPad(factory::lookup);
-    	lunchPad.launch(lunch);
+    	LunchRunner runner = new LunchRunner(factory::lookup);
+    	LunchPad lunchPad = new LunchPad(runner);
+		lunchPad.launch(lunch);
     }
     
     private static Lunch loadLunch(String fileName) throws IOException {
