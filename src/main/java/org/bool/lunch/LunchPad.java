@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.bool.jpid.PidUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +27,12 @@ public class LunchPad {
 			try {
 				CompletionService<Process> completion = new ExecutorCompletionService<>(executor);
 				for (LunchItem item : lunch.getItems()) {
-					Process process = runner.lunch(item);
-					String pid = processId(process);
-					if (process != null) {
-						processes.add(process);
-						completion.submit(() -> await(pid, process));
+					Lunched lunched = runner.launch(item);
+					if (lunched.getProcess() != null) {
+						processes.add(lunched.getProcess());
+						completion.submit(() -> await(lunched));
 					}
-					log.info("Process {} for {} started", pid);
+					log.info("Process {} for {} started", lunched.getPid(), lunched.getLunchItem());
 				}
 				completion.take().get();
 			} finally {
@@ -47,21 +45,10 @@ public class LunchPad {
 		}
 	}
 
-	private Process await(String pid, Process process) throws InterruptedException {
+	private Process await(Lunched lunched) throws InterruptedException {
+		Process process = lunched.getProcess();
 		int exitCode = process.waitFor();
-		log.info("Exit code {} for process {}", exitCode, pid);
+		log.info("Exit code {} for process {}", exitCode, lunched.getPid());
 		return process;
-	}
-	
-	private String processId(Process process) {
-		if (process == null) {
-			return "this(" + PidUtils.getPid() + ")";
-		}
-		try {
-			return String.valueOf(PidUtils.getPid(process));
-		} catch (Exception e) {
-			log.warn("Error reading processId", e);
-		}
-		return "unknown";
 	}
 }
