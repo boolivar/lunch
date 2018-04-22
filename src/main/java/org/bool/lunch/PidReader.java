@@ -1,7 +1,6 @@
 package org.bool.lunch;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.bool.jpid.LongValueAccessor;
 import org.bool.jpid.PidUtils;
@@ -10,14 +9,14 @@ import org.slf4j.LoggerFactory;
 
 public class PidReader {
 	
-	public static final PidReader DEFAULT = new PidReader(new HashMap<>());
+	public static final PidReader DEFAULT = new PidReader(PidUtils.cache(new HashMap<>()));
 	
 	private static final Logger log = LoggerFactory.getLogger(PidReader.class);
 	
-	private final Map<Class<? extends Process>, LongValueAccessor> cache;
+	private final LongValueAccessor pidAccessor;
 	
-	public PidReader(Map<Class<? extends Process>, LongValueAccessor> cache) {
-		this.cache = cache;
+	public PidReader(LongValueAccessor pidAccessor) {
+		this.pidAccessor = pidAccessor;
 	}
 	
 	public String processId(Process process) {
@@ -25,8 +24,7 @@ public class PidReader {
 			return "this(" + PidUtils.getPid() + ")";
 		}
 		try {
-			LongValueAccessor accessor = cache.computeIfAbsent(process.getClass(), PidUtils::getPidAccessor);
-			return String.valueOf(accessor.getValue(process));
+			return String.valueOf(pidAccessor.getValue(process));
 		} catch (Exception e) {
 			log.warn("Error reading processId", e);
 		}
