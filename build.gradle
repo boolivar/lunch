@@ -21,15 +21,16 @@ repositories {
 }
 
 dependencies {
-	compile "org.apache.commons:commons-lang3:3.7"
-	compile "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
-	compile "ch.qos.logback:logback-classic:1.0.13"
+	implementation "org.apache.commons:commons-lang3:3.9"
+	implementation "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
+	implementation "org.slf4j:slf4j-api:1.7.30"
 	
-	
-	compile ("org.apache.kafka:kafka_2.12:1.0.0") {
+	runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+
+	runtimeOnly ("org.apache.kafka:kafka_2.12:1.0.0") {
 		exclude group: "org.slf4j", module: "slf4j-log4j12"
 	}
-	compile ("org.apache.zookeeper:zookeeper:3.4.10") {
+	runtimeOnly ("org.apache.zookeeper:zookeeper:3.4.10") {
 		exclude group: "org.slf4j", module: "slf4j-log4j12" 
 	}
 
