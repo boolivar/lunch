@@ -1,12 +1,17 @@
 plugins {
 	id 'application'
-	id 'ru.vyarus.quality' version '3.0.0'
+	id 'checkstyle'
 }
 
 mainClassName = 'org.bool.lunch.Main'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+checkstyle {
+	configDir file("${rootDir}/gradle/config/checkstyle")
+	toolVersion '8.30'
+}
 
 repositories {
 	mavenCentral()
@@ -29,9 +34,4 @@ dependencies {
 	}
 
 	testCompile 'junit:junit:4.12'
-}
-
-quality {
-	strict = false
-	pmd = false
 }
