@@ -1,5 +1,8 @@
 package org.bool.lunch;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
@@ -7,9 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class JavaProcessRunnerTest {
 
@@ -46,7 +46,7 @@ public class JavaProcessRunnerTest {
 		
 		private final Collection<String> args;
 		
-		public TestProcess(String command, Collection<String> args) {
+		TestProcess(String command, Collection<String> args) {
 			this.command = command;
 			this.args = args;
 		}

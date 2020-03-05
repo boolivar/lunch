@@ -1,10 +1,10 @@
 package org.bool.lunch;
 
-import java.util.Collection;
-
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 public class ClassRunner implements Runner {
 	
