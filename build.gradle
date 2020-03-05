@@ -1,37 +1,37 @@
 plugins {
-	id 'application'
-	id 'checkstyle'
+	id "application"
+	id "checkstyle"
 }
 
-mainClassName = 'org.bool.lunch.Main'
+mainClassName = "org.bool.lunch.Main"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 checkstyle {
 	configDir file("${rootDir}/gradle/config/checkstyle")
-	toolVersion '8.30'
+	toolVersion "8.30"
 }
 
 repositories {
 	mavenCentral()
 	maven {
-        url 'https://dl.bintray.com/boolivar/java'
-    }
+		url 'https://dl.bintray.com/boolivar/java'
+	}
 }
 
 dependencies {
-	compile 'org.apache.commons:commons-lang3:3.7'
-	compile 'com.esotericsoftware.yamlbeans:yamlbeans:1.13'
-	compile 'ch.qos.logback:logback-classic:1.0.13'
-	compile 'org.bool.jpid:jpid-utils:1.0.1'
-
-	compile ('org.apache.kafka:kafka_2.12:1.0.0') {
-		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+	compile "org.apache.commons:commons-lang3:3.7"
+	compile "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
+	compile "ch.qos.logback:logback-classic:1.0.13"
+	
+	
+	compile ("org.apache.kafka:kafka_2.12:1.0.0") {
+		exclude group: "org.slf4j", module: "slf4j-log4j12"
 	}
-	compile ('org.apache.zookeeper:zookeeper:3.4.10') {
-		exclude group: 'org.slf4j', module: 'slf4j-log4j12' 
+	compile ("org.apache.zookeeper:zookeeper:3.4.10") {
+		exclude group: "org.slf4j", module: "slf4j-log4j12" 
 	}
 
-	testCompile 'junit:junit:4.12'
+	testCompile "junit:junit:4.12"
 }
