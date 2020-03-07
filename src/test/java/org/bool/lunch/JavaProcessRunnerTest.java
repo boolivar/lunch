@@ -1,7 +1,6 @@
 package org.bool.lunch;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +9,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JavaProcessRunnerTest {
 
@@ -24,13 +25,13 @@ public class JavaProcessRunnerTest {
 	@Test
 	public void testRunner() {
 		TestProcess process = (TestProcess) jpr.run("java.util.List", Arrays.asList("-version"));
-		Assert.assertEquals(JAVA_BIN, process.getCommand());
+		assertEquals(JAVA_BIN, process.getCommand());
 		ArrayDeque<String> args = new ArrayDeque<>(process.getArgs());
-		Assert.assertEquals(JAVA_ARGS.get(0), args.pop());
-		Assert.assertEquals("-cp", args.pop());
-		Assert.assertEquals(CLASSPATH, args.pop());
-		Assert.assertEquals("java.util.List", args.pop());
-		Assert.assertEquals("-version", args.pop());
+		assertEquals(JAVA_ARGS.get(0), args.pop());
+		assertEquals("-cp", args.pop());
+		assertEquals(CLASSPATH, args.pop());
+		assertEquals("java.util.List", args.pop());
+		assertEquals("-version", args.pop());
 	}
 	
 	private static class TestProcessRunner implements Runner {
@@ -40,7 +41,7 @@ public class JavaProcessRunnerTest {
 		}
 	}
 	
-	private static class TestProcess extends Process {
+	static class TestProcess extends Process {
 		
 		private final String command;
 		

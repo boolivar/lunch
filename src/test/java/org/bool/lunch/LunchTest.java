@@ -1,10 +1,11 @@
 package org.bool.lunch;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LunchTest {
 	
@@ -38,8 +39,8 @@ public class LunchTest {
 		
 		Lunch instance = makeLunch();
 		
-		Assert.assertEquals(instance, lunch);
-		Assert.assertEquals(instance.hashCode(), lunch.hashCode());
+		assertEquals(instance, lunch);
+		assertEquals(instance.hashCode(), lunch.hashCode());
 	}
 	
 	private Lunch makeLunch() {

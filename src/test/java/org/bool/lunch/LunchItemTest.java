@@ -1,15 +1,16 @@
 package org.bool.lunch;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class LunchItemTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class LunchItemTest {
 
 	@Test
-	public void testLunchItem() {
+	void testLunchItem() {
 		LunchItem item = new LunchItem();
 		item.setCommand("TestClass1");
 		
@@ -20,8 +21,8 @@ public class LunchItemTest {
 		item.setArgs(args1);
 		
 		LunchItem instance = lunchItem();
-		Assert.assertEquals(instance, item);
-		Assert.assertEquals(instance.hashCode(), item.hashCode());
+		assertEquals(instance, item);
+		assertEquals(instance.hashCode(), item.hashCode());
 	}
 	
 	private LunchItem lunchItem() {
@@ -32,20 +33,20 @@ public class LunchItemTest {
 	}
 	
 	@Test
-	public void testEmptyItems() {
+	void testEmptyItems() {
 		LunchItem item1 = new LunchItem();
 		LunchItem item2 = new LunchItem();
 		
-		Assert.assertEquals(item1, item2);
-		Assert.assertEquals(item1.hashCode(), item2.hashCode());
+		assertEquals(item1, item2);
+		assertEquals(item1.hashCode(), item2.hashCode());
 	}
 	
 	@Test
-	public void testSingleCommandItems() {
+	void testSingleCommandItems() {
 		LunchItem item1 = new LunchItem("TestCommand");
 		LunchItem item2 = new LunchItem("TestCommand");
 		
-		Assert.assertEquals(item1, item2);
-		Assert.assertEquals(item1.hashCode(), item2.hashCode());
+		assertEquals(item1, item2);
+		assertEquals(item1.hashCode(), item2.hashCode());
 	}
 }
