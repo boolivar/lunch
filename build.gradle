@@ -22,11 +22,15 @@ repositories {
 
 dependencies {
 	ext["jUnitVersion"] = "5.6.0"
+	ext["akkaVersion"] = "2.6.3"
 	
 	implementation "org.apache.commons:commons-lang3:3.9"
 	implementation "org.bool.jpid:jpid-utils:1.0.1"
 	implementation "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
 	implementation "org.slf4j:slf4j-api:1.7.30"
+	implementation "com.lightbend.akka.management:akka-management-cluster-http_2.13:1.0.5"
+	implementation "com.typesafe.akka:akka-cluster-typed_2.13:${akkaVersion}"
+	implementation "com.typesafe.akka:akka-serialization-jackson_2.13:${akkaVersion}"
 	
 	runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
 
