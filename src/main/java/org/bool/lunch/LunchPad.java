@@ -5,50 +5,32 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class LunchPad {
 
 	private static final Logger log = LoggerFactory.getLogger(LunchPad.class);
 	
-	private final LunchRunner runner;
+	private final LunchBox lunchBox;
 
-	public LunchPad(LunchRunner runner) {
-		this.runner = runner;
+	public LunchPad(LunchBox lunchBox) {
+		this.lunchBox = lunchBox;
 	}
 	
 	public void launch(Lunch lunch) {
 		List<Process> processes = new ArrayList<>();
 		try {
-			ExecutorService executor = Executors.newCachedThreadPool();
-			try {
-				CompletionService<Process> completion = new ExecutorCompletionService<>(executor);
-				for (LunchItem item : lunch.getItems()) {
-					Lunched lunched = runner.launch(item);
-					if (lunched.getProcess() != null) {
-						processes.add(lunched.getProcess());
-						completion.submit(() -> await(lunched));
-					}
-					log.info("Process {} for {} started", lunched.getPid(), lunched.getLunchItem());
-				}
-				completion.take().get();
-			} finally {
-				executor.shutdown();
+			BlockingQueue<Integer> queue = new LinkedBlockingQueue<>();
+			for (LunchItem item : lunch.getItems()) {
+				Lunched lunched = lunchBox.launch(item, queue::offer);
+				log.info("Process {} for {} started", lunched.getPid(), lunched.getLunchItem());
 			}
+			queue.take();
 		} catch (Exception e) {
 			log.error("Lunch terminated", e);
 		} finally {
 			processes.forEach(Process::destroy);
 		}
-	}
-
-	private Process await(Lunched lunched) throws InterruptedException {
-		Process process = lunched.getProcess();
-		int exitCode = process.waitFor();
-		log.info("Exit code {} for process {}", exitCode, lunched.getPid());
-		return process;
 	}
 }

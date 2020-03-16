@@ -27,7 +27,8 @@ public class Main {
 	private static void run(Lunch lunch) throws ClassNotFoundException {
 		CachedRunnerFactory<String> factory = new CachedRunnerFactory<>(new DefaultRunnerFactory(), RunnerType::valueOf);
 		LunchRunner runner = new LunchRunner(factory::lookup, PidReader.DEFAULT);
-		LunchPad lunchPad = new LunchPad(runner);
+		LunchBox lunchBox = new LunchBox(runner);
+		LunchPad lunchPad = new LunchPad(lunchBox);
 		lunchPad.launch(lunch);
 	}
 	
