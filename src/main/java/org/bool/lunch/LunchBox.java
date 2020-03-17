@@ -4,7 +4,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.IntConsumer;
+import java.util.function.ObjIntConsumer;
 
 public class LunchBox {
 	
@@ -14,7 +14,7 @@ public class LunchBox {
 	
 	public LunchBox(LunchRunner lunchRunner) {
 		this(lunchRunner, Executors.newCachedThreadPool(new BasicThreadFactory.Builder()
-				.namingPattern("LunchBox-thread-d").build()));
+				.namingPattern("LunchBox-thread-%d").build()));
 	}
 	
 	public LunchBox(LunchRunner lunchRunner, ExecutorService executorService) {
@@ -22,17 +22,14 @@ public class LunchBox {
 		this.executorService = executorService;
 	}
 	
-	public Lunched launch(LunchItem item, IntConsumer onDestroy) {
+	public Lunched launch(LunchItem item, ObjIntConsumer<Lunched> onDestroy) {
 		Lunched lunched = lunchRunner.launch(item);
-		
 		if (lunched.getProcess() != null) {
 			executorService.submit(() -> {
-				int exitCode = lunched.getProcess().waitFor();
-				onDestroy.accept(exitCode);
-				return exitCode;
+				onDestroy.accept(lunched, lunched.getProcess().waitFor());
+				return lunched;
 			});
 		}
-		
 		return lunched;
 	}
 }

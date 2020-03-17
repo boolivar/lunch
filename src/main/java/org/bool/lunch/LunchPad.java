@@ -21,9 +21,9 @@ public class LunchPad {
 	public void launch(Lunch lunch) {
 		List<Process> processes = new ArrayList<>();
 		try {
-			BlockingQueue<Integer> queue = new LinkedBlockingQueue<>();
+			BlockingQueue<Lunched> queue = new LinkedBlockingQueue<>();
 			for (LunchItem item : lunch.getItems()) {
-				Lunched lunched = lunchBox.launch(item, queue::offer);
+				Lunched lunched = lunchBox.launch(item, (what, exitCode) -> queue.offer(what));
 				log.info("Process {} for {} started", lunched.getPid(), lunched.getLunchItem());
 			}
 			queue.take();
