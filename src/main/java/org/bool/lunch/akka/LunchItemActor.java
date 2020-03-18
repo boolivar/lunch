@@ -1,30 +1,51 @@
 package org.bool.lunch.akka;
 
 import org.bool.lunch.Command;
-import org.bool.lunch.LunchItem;
+import org.bool.lunch.Lunched;
 
 import akka.actor.typed.Behavior;
+import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
+import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 public class LunchItemActor extends AbstractBehavior<Command> {
 
-	private final LunchItem item;
+	private final Lunched lunched;
 	
-	public LunchItemActor(ActorContext<Command> context, LunchItem item) {
+	public static class Stopped implements Command {
+		
+		private final int exitCode;
+
+		public int getExitCode() {
+			return exitCode;
+		}
+
+		public Stopped(int exitCode) {
+			this.exitCode = exitCode;
+		}
+	}
+	
+	public LunchItemActor(ActorContext<Command> context, Lunched lunched) {
 		super(context);
-		this.item = item;
+		this.lunched = lunched;
 	}
 
 	@Override
 	public Receive<Command> createReceive() {
 		return newReceiveBuilder()
-				.onAnyMessage(this::handle)
+				.onMessage(Stopped.class, this::onStop)
+				.onSignal(PostStop.class, this::onPostStop)
 				.build();
 	}
 	
-	private Behavior<Command> handle(Command cmd) {
+	private Behavior<Command> onStop(Stopped cmd) {
+		return Behaviors.stopped();
+	}
+	
+	private Behavior<Command> onPostStop(PostStop signal) {
+		lunched.getProcess().destroy();
 		return this;
 	}
 }

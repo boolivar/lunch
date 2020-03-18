@@ -24,9 +24,12 @@ public class LunchActor extends AbstractBehavior<Command> {
 			return item;
 		}
 	}
+
+	private final LunchItemActorFactory actorFactory;
 	
-	public LunchActor(ActorContext<Command> context) {
+	public LunchActor(ActorContext<Command> context, LunchItemActorFactory actorFactory) {
 		super(context);
+		this.actorFactory = actorFactory;
 	}
 
 	@Override
@@ -39,7 +42,7 @@ public class LunchActor extends AbstractBehavior<Command> {
 	private Behavior<Command> lunch(LunchCommand cmd) {
 		ActorContext<Command> context = getContext();
 		ActorRef<Command> lunchItemActor = context
-				.spawn(Behaviors.setup(ctx -> new LunchItemActor(ctx, cmd.getItem())), cmd.getItem().getName());
+				.spawn(Behaviors.setup(ctx -> actorFactory.create(ctx, cmd.getItem())), cmd.getItem().getName());
 		context.watch(lunchItemActor);
 		return this;
 	}
