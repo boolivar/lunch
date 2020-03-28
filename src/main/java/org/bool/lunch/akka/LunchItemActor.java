@@ -45,7 +45,9 @@ public class LunchItemActor extends AbstractBehavior<Command> {
 	}
 	
 	private Behavior<Command> onPostStop(PostStop signal) {
-		lunched.getProcess().destroy();
+		if (lunched.getProcess().isAlive()) {
+			lunched.getProcess().destroy();
+		}
 		return this;
 	}
 }
