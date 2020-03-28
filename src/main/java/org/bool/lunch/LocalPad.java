@@ -8,16 +8,17 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LunchPad {
+public class LocalPad implements LaunchPad {
 
-	private static final Logger log = LoggerFactory.getLogger(LunchPad.class);
+	private static final Logger log = LoggerFactory.getLogger(LocalPad.class);
 	
 	private final LunchBox lunchBox;
 
-	public LunchPad(LunchBox lunchBox) {
+	public LocalPad(LunchBox lunchBox) {
 		this.lunchBox = lunchBox;
 	}
 	
+	@Override
 	public void launch(Lunch lunch) {
 		List<Process> processes = new ArrayList<>();
 		try {
