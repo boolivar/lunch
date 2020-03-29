@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,7 @@ public class DefaultRunnerFactory implements RunnerFactory {
 	}
 	
 	private JavaProcessRunner createJavaRunner() {
-		return new JavaProcessRunner(new ProcessRunner(), "java", classpath(), Collections.emptyList());
+		return new JavaProcessRunner(new ProcessRunner(), "java", classpath());
 	}
 	
 	private ProcessRunner createProcessRunner() {

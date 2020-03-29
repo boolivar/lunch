@@ -1,5 +1,6 @@
 package org.bool.lunch;
 
+import java.util.Collections;
 import java.util.function.Function;
 
 public class LunchRunner {
@@ -21,7 +22,7 @@ public class LunchRunner {
 	
 	private Process run(LunchItem item) {
 		Runner runner = lookupRunner(item.getType());
-		return runner.run(item.getCommand(), item.getArgs());
+		return runner.run(item.getCommand(), item.getArgs() != null ? item.getArgs() : Collections.emptyList());
 	}
 	
 	private Runner lookupRunner(String type) {
