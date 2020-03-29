@@ -34,7 +34,7 @@ public class ClusterGuardian {
 	
 	private static Behavior<ClusterCommand> create(String host, Integer port, ActorContext<ClusterCommand> context) {
 		ClusterGuardian guardian = new ClusterGuardian(host, port, new ActorCluster(context));
-		return Behaviors.receive(ClusterCommand.class).onAnyMessage(message -> dispatch(message, guardian)).build();
+		return Behaviors.receive(ClusterCommand.class).onAnyMessage((ctx, message) -> dispatch(message, guardian)).build();
 	}
 
 	private static Behavior<ClusterCommand> dispatch(ClusterCommand message, ClusterGuardian guardian) {

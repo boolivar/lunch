@@ -28,7 +28,6 @@ public class LunchItemActor extends AbstractBehavior<Command> {
 	}
 	
 	public LunchItemActor(ActorContext<Command> context, Lunched lunched) {
-		super(context);
 		this.lunched = lunched;
 	}
 
