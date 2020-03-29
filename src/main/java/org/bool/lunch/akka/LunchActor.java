@@ -42,8 +42,11 @@ public class LunchActor extends AbstractBehavior<Command> {
 	}
 	
 	private Behavior<Command> lunch(LunchCommand cmd) {
-		ActorRef<Command> lunchItemActor = context
-				.spawn(Behaviors.setup(ctx -> actorFactory.create(ctx, cmd.getItem())), cmd.getItem().getName());
+		LunchItem lunchItem = cmd.getItem();
+		Behavior<Command> lunchItemBehavior = Behaviors.setup(ctx -> actorFactory.create(ctx, lunchItem));
+		ActorRef<Command> lunchItemActor = lunchItem.getName() != null
+				? context.spawn(lunchItemBehavior, lunchItem.getName())
+				: context.spawnAnonymous(lunchItemBehavior);
 		context.watch(lunchItemActor);
 		return this;
 	}
