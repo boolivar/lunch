@@ -21,20 +21,23 @@ repositories {
 }
 
 dependencies {
-	ext["jUnitVersion"] = "5.6.0"
 	ext["akkaVersion"] = "2.5.27"
+	ext["scalaVersion"] = "2.12"
+	
+	implementation platform("org.junit:junit-bom:5.6.1")
 	
 	implementation "org.apache.commons:commons-lang3:3.9"
 	implementation "org.bool.jpid:jpid-utils:1.0.1"
 	implementation "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
 	implementation "org.slf4j:slf4j-api:1.7.25"
-	implementation "com.lightbend.akka.management:akka-management-cluster-http_2.13:1.0.6"
-	implementation "com.typesafe.akka:akka-cluster-typed_2.13:${akkaVersion}"
+	implementation "com.lightbend.akka.management:akka-management-cluster-http_${scalaVersion}:1.0.6"
+	implementation "com.typesafe.akka:akka-cluster-typed_${scalaVersion}:${akkaVersion}"
 	
 	runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-	runtimeOnly "com.typesafe.akka:akka-slf4j_2.13:${akkaVersion}"
+	runtimeOnly "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
+	runtimeOnly "org.slf4j:log4j-over-slf4j:1.7.25"
 
-	runtimeOnly ("org.apache.kafka:kafka_2.12:1.0.0") {
+	runtimeOnly ("org.apache.kafka:kafka_2.12:1.1.0") {
 		exclude group: "org.slf4j", module: "slf4j-log4j12"
 	}
 	runtimeOnly ("org.apache.zookeeper:zookeeper:3.4.10") {
@@ -42,7 +45,7 @@ dependencies {
 		exclude group: "log4j", module: "log4j"
 	}
 
-	testImplementation "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
