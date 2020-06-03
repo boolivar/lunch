@@ -24,6 +24,7 @@ dependencies {
 	ext["akkaVersion"] = "2.5.27"
 	ext["scalaVersion"] = "2.12"
 	ext["scalecubeVersion"] = "2.9.0"
+	ext["mockitoVersion"] = "3.3.3"
 	
 	implementation platform("org.junit:junit-bom:5.6.1")
 	
@@ -51,6 +52,8 @@ dependencies {
 	}
 
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+	testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 	
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
