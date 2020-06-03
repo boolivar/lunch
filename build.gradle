@@ -23,6 +23,7 @@ repositories {
 dependencies {
 	ext["akkaVersion"] = "2.5.27"
 	ext["scalaVersion"] = "2.12"
+	ext["scalecubeVersion"] = "2.9.0"
 	
 	implementation platform("org.junit:junit-bom:5.6.1")
 	
@@ -32,6 +33,10 @@ dependencies {
 	implementation "org.slf4j:slf4j-api:1.7.25"
 	implementation "com.lightbend.akka.management:akka-management-cluster-http_${scalaVersion}:1.0.6"
 	implementation "com.typesafe.akka:akka-cluster-typed_${scalaVersion}:${akkaVersion}"
+	
+	implementation "io.scalecube:scalecube-services:${scalecubeVersion}"
+	implementation "io.scalecube:scalecube-services-discovery:${scalecubeVersion}"
+	implementation "io.scalecube:scalecube-services-transport-jackson:${scalecubeVersion}"
 	
 	runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
 	runtimeOnly "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
