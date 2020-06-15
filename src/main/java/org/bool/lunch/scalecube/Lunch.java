@@ -19,6 +19,7 @@ import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.discovery.api.ServiceDiscovery;
 import io.scalecube.services.gateway.Gateway;
 import io.scalecube.services.gateway.GatewayOptions;
+import reactor.core.publisher.Mono;
 
 public class Lunch {
 
@@ -28,18 +29,14 @@ public class Lunch {
 		this.service = service;
 	}
 
-	public void launch() throws InterruptedException {
-		Microservices microservices = Microservices.builder()
+	public Mono<Microservices> launch() throws InterruptedException {
+		return Microservices.builder()
 				.services(ServiceInfo.fromServiceInstance(service)
 						.tag("role", "seed")
 						.build())
 				.gateway(this::gateway)
 				.discovery(this::discovery)
-				.startAwait();
-		
-		synchronized (microservices) {
-			microservices.wait();
-		}
+				.start();
 	}
 	
 	private Gateway gateway(GatewayOptions options) {
@@ -58,6 +55,7 @@ public class Lunch {
 		LunchRunner runner = new LunchRunner(factory::lookup, PidReader.DEFAULT);
 		LocalLunchService lunchService = new LocalLunchService(runner, Executors.newSingleThreadExecutor());
 		Lunch lunch = new Lunch(lunchService);
-		lunch.launch();
+		lunch.launch()
+				.flatMap(Microservices::onShutdown).block();
 	}
 }
