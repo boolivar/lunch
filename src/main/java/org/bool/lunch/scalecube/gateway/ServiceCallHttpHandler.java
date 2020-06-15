@@ -32,7 +32,7 @@ public class ServiceCallHttpHandler implements BiFunction<HttpServerRequest, Htt
 
 	private ServiceMessage createMessage(HttpServerRequest request, ByteBuf buf) {
 		return ServiceMessage.builder()
-				.qualifier(request.path())
+				.qualifier(request.uri())
 				.data(buf)
 				.build();
 	}
