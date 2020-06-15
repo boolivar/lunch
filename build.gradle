@@ -38,6 +38,7 @@ dependencies {
 	implementation "io.scalecube:scalecube-services:${scalecubeVersion}"
 	implementation "io.scalecube:scalecube-services-discovery:${scalecubeVersion}"
 	implementation "io.scalecube:scalecube-services-transport-jackson:${scalecubeVersion}"
+	implementation "io.scalecube:scalecube-services-bytebuf-codec:${scalecubeVersion}"
 	
 	runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
 	runtimeOnly "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
@@ -56,4 +57,5 @@ dependencies {
 	testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 	
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.5.2"
 }
