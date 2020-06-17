@@ -11,7 +11,6 @@ import org.bool.lunch.scalecube.gateway.ServiceCallHttpHandler;
 
 import java.util.concurrent.Executors;
 
-import io.scalecube.net.Address;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.ServiceInfo;
@@ -19,17 +18,18 @@ import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.discovery.api.ServiceDiscovery;
 import io.scalecube.services.gateway.Gateway;
 import io.scalecube.services.gateway.GatewayOptions;
+import io.scalecube.services.gateway.http.HttpGateway;
 import reactor.core.publisher.Mono;
 
 public class Lunch {
 
 	private final LunchService service;
-
+	
 	public Lunch(LunchService service) {
 		this.service = service;
 	}
 
-	public Mono<Microservices> launch() throws InterruptedException {
+	public Mono<Microservices> launch() {
 		return Microservices.builder()
 				.services(ServiceInfo.fromServiceInstance(service)
 						.tag("role", "seed")
@@ -40,10 +40,7 @@ public class Lunch {
 	}
 	
 	private Gateway gateway(GatewayOptions options) {
-		Address address = Address.create("localhost", options.port());
-		ServiceCallHttpHandler handler = new ServiceCallHttpHandler(options.call());
-		LunchHttpServer server = new LunchHttpServer("localhost", options.port(), handler);
-		return new LunchHttpGateway(options.id(), address, server.bind().cache());
+	    return new HttpGateway(options);
 	}
 		
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {

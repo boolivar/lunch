@@ -31,7 +31,7 @@ public class LocalLunchService implements LunchService {
     private void launch(LunchItem item, FluxSink<Lunched> sink) {
         try {
             Lunched lunch = lunchRunner.launch(item);
-            sink.next(lunch);
+            sink.next(new Lunched(lunch.getPid(), null, lunch.getLunchItem()));
             
             int exitCode = lunch.getProcess().waitFor();
             if (exitCode != 0) {
