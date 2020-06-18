@@ -5,9 +5,6 @@ import org.bool.lunch.DefaultRunnerFactory;
 import org.bool.lunch.LunchRunner;
 import org.bool.lunch.PidReader;
 import org.bool.lunch.RunnerType;
-import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
-import org.bool.lunch.scalecube.gateway.LunchHttpServer;
-import org.bool.lunch.scalecube.gateway.ServiceCallHttpHandler;
 
 import java.util.concurrent.Executors;
 
