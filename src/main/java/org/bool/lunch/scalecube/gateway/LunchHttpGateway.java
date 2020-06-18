@@ -13,6 +13,10 @@ public class LunchHttpGateway implements Gateway {
 	
 	private final Mono<? extends DisposableServer> server;
 	
+	public LunchHttpGateway(String id, String host, int port, Mono<? extends DisposableServer> server) {
+	    this(id, Address.create(host, port), server);
+    }
+	
 	public LunchHttpGateway(String id, Address address, Mono<? extends DisposableServer> server) {
 		this.id = id;
 		this.address = address;
