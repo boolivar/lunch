@@ -17,6 +17,7 @@ import io.scalecube.services.gateway.Gateway;
 import io.scalecube.services.gateway.GatewayOptions;
 import io.scalecube.services.gateway.http.HttpGateway;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 public class Lunch {
 
@@ -47,7 +48,8 @@ public class Lunch {
 	public static void main(String[] args) throws InterruptedException {
 		CachedRunnerFactory<String> factory = new CachedRunnerFactory<>(new DefaultRunnerFactory(), RunnerType::valueOf);
 		LunchRunner runner = new LunchRunner(factory::lookup, PidReader.DEFAULT);
-		LocalLunchService lunchService = new LocalLunchService(runner, Executors.newSingleThreadExecutor());
+		Luncher luncher = new Luncher(runner, Schedulers.newElastic("local-lunch"));
+		LocalLunchService lunchService = new LocalLunchService(luncher);
 		Lunch lunch = new Lunch(lunchService);
 		lunch.launch()
 				.flatMap(Microservices::onShutdown).block();
