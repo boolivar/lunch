@@ -5,7 +5,6 @@ import org.bool.lunch.Lunched;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -36,15 +35,18 @@ public class LocalLunchService implements LunchService {
 	}
 
 	@Override
-	public Mono<Void> land(String pid) {
-		return Mono.just(pid).map(lunchedMap::get).filter(Objects::nonNull).map(Lunched::getProcess)
-				.doOnNext(Process::destroy).single().then();
+	public Mono<Lunched> land(String pid) {
+		return Mono.justOrEmpty(lunchedMap.get(pid))
+				.doOnNext(lunched -> lunched.getProcess().destroy())
+				;
 	}
 
 	@Override
 	public Mono<List<Stat>> stats() {
 		return Mono.just(lunchedMap.values())
-				.map(values -> values.stream().map(this::buildStat).collect(Collectors.toList())).cache();
+				.map(values -> values.stream().map(this::buildStat).collect(Collectors.toList()))
+				.cache()
+				;
 	}
 
 	private Stat buildStat(Lunched lunched) {

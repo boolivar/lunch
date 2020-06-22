@@ -17,7 +17,7 @@ public interface LunchService {
     Flux<Lunched> launch(LunchItem item);
     
     @ServiceMethod
-    Mono<Void> land(String pid);
+    Mono<Lunched> land(String pid);
     
     @ServiceMethod
     Mono<List<Stat>> stats();
