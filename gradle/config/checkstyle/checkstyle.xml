@@ -62,6 +62,7 @@
 		<module name="ThrowsCount"/>
 		<module name="VisibilityModifier">
 			<property name="protectedAllowed" value="true"/>
+			<property name="packageAllowed" value="true"/>
 		</module>
 
 		<!-- Coding (http://checkstyle.sourceforge.net/config_coding.html) -->
