@@ -12,13 +12,13 @@ import reactor.core.publisher.Mono;
 
 @Service
 public interface LunchService {
-    
-    @ServiceMethod
-    Flux<Lunched> launch(LunchItem item);
-    
-    @ServiceMethod
-    Mono<Lunched> land(String pid);
-    
-    @ServiceMethod
-    Mono<List<Stat>> stats();
+
+	@ServiceMethod
+	Flux<Lunched> launch(LunchItem item);
+
+	@ServiceMethod
+	Mono<Lunched> land(String pid);
+
+	@ServiceMethod
+	Mono<List<Stat>> stats();
 }

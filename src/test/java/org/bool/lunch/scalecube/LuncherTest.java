@@ -42,7 +42,7 @@ class LuncherTest {
 	}
 
 	@Test
-	void testError() throws InterruptedException  {
+	void testError() throws InterruptedException {
 		LunchItem lunchItem = new LunchItem("test");
 		
 		given(process.waitFor())

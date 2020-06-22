@@ -3,14 +3,13 @@ package org.bool.lunch.scalecube;
 import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-
 import io.scalecube.net.Address;
 import reactor.core.publisher.Mono;
 import reactor.netty.DisposableServer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.BDDMockito.*;
 
 class LunchHttpGatewayTest {
 	
