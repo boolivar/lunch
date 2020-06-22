@@ -1,9 +1,12 @@
 package org.bool.lunch;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Lunched {
 
 	private final String pid;
 	
+	@JsonIgnore
 	private final Process process;
 	
 	private final LunchItem lunchItem;

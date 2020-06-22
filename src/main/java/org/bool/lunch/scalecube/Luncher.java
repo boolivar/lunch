@@ -29,7 +29,7 @@ public class Luncher {
 		try {
 			Lunched lunch = runner.launch(item);
 
-			sink.next(new Lunched(lunch.getPid(), null, lunch.getLunchItem()));
+			sink.next(lunch);
 
 			int exitCode = lunch.getProcess().waitFor();
 			if (exitCode != 0) {
