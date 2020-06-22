@@ -10,7 +10,7 @@ targetCompatibility = 1.8
 
 checkstyle {
 	configDir file("${rootDir}/gradle/config/checkstyle")
-	toolVersion "8.30"
+	toolVersion "8.33"
 }
 
 repositories {
