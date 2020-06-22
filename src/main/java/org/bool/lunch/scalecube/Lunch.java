@@ -6,6 +6,13 @@ import org.bool.lunch.LunchRunner;
 import org.bool.lunch.PidReader;
 import org.bool.lunch.RunnerType;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import io.scalecube.cluster.membership.MembershipConfig;
+import io.scalecube.net.Address;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.ServiceInfo;
@@ -21,17 +28,16 @@ public class Lunch {
 
 	private final LunchService service;
 	
-	private final int port;
+	private final List<String> seeds;
 	
-	public Lunch(LunchService service) {
-		this(service, 0);
-	}
+	private final int gatewayPort;
 	
-	public Lunch(LunchService service, int port) {
+	public Lunch(LunchService service, List<String> seeds, int gatewayPort) {
 		this.service = service;
-		this.port = port;
+		this.seeds = seeds;
+		this.gatewayPort = gatewayPort;
 	}
-
+	
 	public Mono<Microservices> launch() {
 		return Microservices.builder()
 				.services(ServiceInfo.fromServiceInstance(service)
@@ -43,11 +49,19 @@ public class Lunch {
 	}
 	
 	private Gateway gateway(GatewayOptions options) {
-	    return new HttpGateway(options.port(port));
+		return new HttpGateway(options.port(gatewayPort));
 	}
 		
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {
-		return new ScalecubeServiceDiscovery(endpoint);
+		return new ScalecubeServiceDiscovery(endpoint)
+				.options(clusterConfig -> clusterConfig.membership(this::membership));
+	}
+	
+	private MembershipConfig membership(MembershipConfig config) {
+		if (seeds == null || seeds.isEmpty()) {
+			return config;
+		}
+		return config.seedMembers(seeds.stream().map(Address::from).collect(Collectors.toList()));
 	}
 	
 	public static void main(String[] args) {
@@ -55,7 +69,11 @@ public class Lunch {
 		LunchRunner runner = new LunchRunner(factory::lookup, PidReader.DEFAULT);
 		Luncher luncher = new Luncher(runner, Schedulers.newElastic("local-lunch"));
 		LocalLunchService lunchService = new LocalLunchService(luncher);
-		Lunch lunch = new Lunch(lunchService, args.length > 0 ? Integer.parseInt(args[0]) : 0);
+		
+		int gatewayPort = args.length > 0 ? Integer.parseInt(args[0]) : 0;
+		List<String> seeds = args.length > 1 ? Arrays.asList(args).subList(1, args.length) : Collections.emptyList();
+		
+		Lunch lunch = new Lunch(lunchService, seeds, gatewayPort);
 		lunch.launch()
 				.flatMap(Microservices::onShutdown).block();
 	}
