@@ -34,7 +34,7 @@ public class LocalLunchServiceTest {
 	LocalLunchService service;
 	
 	@Test
-	void testCache() throws InterruptedException {
+	void testCache() {
 		Lunched lunched = new Lunched("test-pid", null, null);
 		
 		given(supplier.get())
@@ -42,15 +42,16 @@ public class LocalLunchServiceTest {
 		given(luncher.launch(any()))
 			.willReturn(Flux.from(Mono.fromSupplier(supplier)));
 		
-		MutableObject<Lunched> subscriber = new MutableObject<>();
-		
 		Flux<Lunched> result = service.launch(new LunchItem());
+		
+		MutableObject<Lunched> subscriber = new MutableObject<>();
 		result.subscribe(subscriber::setValue);
+		
+		assertSame(lunched, subscriber.getValue());
+		assertSame(lunched, result.blockFirst());
+		assertSame(lunched, result.blockLast());
 		
 		then(supplier)
 			.should().get();
-		
-		assertSame(lunched, result.blockFirst());
-		assertSame(lunched, subscriber.getValue());
 	}
 }
