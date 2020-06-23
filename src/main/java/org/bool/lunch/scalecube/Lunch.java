@@ -5,51 +5,55 @@ import org.bool.lunch.DefaultRunnerFactory;
 import org.bool.lunch.LunchRunner;
 import org.bool.lunch.PidReader;
 import org.bool.lunch.RunnerType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import io.scalecube.cluster.membership.MembershipConfig;
 import io.scalecube.net.Address;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.ServiceEndpoint;
-import io.scalecube.services.ServiceInfo;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.discovery.api.ServiceDiscovery;
+import io.scalecube.services.discovery.api.ServiceDiscoveryEvent;
 import io.scalecube.services.gateway.Gateway;
 import io.scalecube.services.gateway.GatewayOptions;
 import io.scalecube.services.gateway.http.HttpGateway;
+import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 public class Lunch {
+	
+	private static final Logger log = LoggerFactory.getLogger(Lunch.class);
 
 	private final LunchService service;
 	
-	private final List<String> seeds;
-	
 	private final int gatewayPort;
 	
-	public Lunch(LunchService service, List<String> seeds, int gatewayPort) {
+	private final Address seed;
+	
+	public Lunch(LunchService service, int gatewayPort, Address seed) {
 		this.service = service;
-		this.seeds = seeds;
 		this.gatewayPort = gatewayPort;
+		this.seed = seed;
 	}
 	
 	public Mono<Microservices> launch() {
 		return Microservices.builder()
-				.services(ServiceInfo.fromServiceInstance(service)
-						.tag("role", "seed")
-						.build())
+				.services(service)
 				.gateway(this::gateway)
 				.discovery(this::discovery)
-				.start();
+				.transport(RSocketServiceTransport::new)
+				.tags(Collections.singletonMap("role", seed != null ? "member" : "seed"))
+				.start()
+				.doOnNext(m -> m.discovery().listenDiscovery().subscribe(e -> handleClusterEvent(m, e)))
+				;
 	}
 	
 	private Gateway gateway(GatewayOptions options) {
-		return new HttpGateway(options.port(gatewayPort));
+		return new HttpGateway(options.port(gatewayPort).call(options.call().methodRegistry(null)));
 	}
 		
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {
@@ -58,10 +62,18 @@ public class Lunch {
 	}
 	
 	private MembershipConfig membership(MembershipConfig config) {
-		if (seeds == null || seeds.isEmpty()) {
-			return config;
+		if (seed != null) {
+			return config.seedMembers(seed);
 		}
-		return config.seedMembers(seeds.stream().map(Address::from).collect(Collectors.toList()));
+		return config;
+	}
+	
+	private void handleClusterEvent(Microservices microservices, ServiceDiscoveryEvent event) {
+		log.info("Received cluster event: {}", event);
+		if (event.isEndpointRemoved() && "seed".equals(event.serviceEndpoint().tags().get("role"))) {
+			log.info("Shutdown service on seed removal");
+			microservices.shutdown().subscribe();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -71,10 +83,13 @@ public class Lunch {
 		LocalLunchService lunchService = new LocalLunchService(luncher);
 		
 		int gatewayPort = args.length > 0 ? Integer.parseInt(args[0]) : 0;
-		List<String> seeds = args.length > 1 ? Arrays.asList(args).subList(1, args.length) : Collections.emptyList();
+		Address seed = args.length > 1 ? Address.from(args[1]) : null;
 		
-		Lunch lunch = new Lunch(lunchService, seeds, gatewayPort);
-		lunch.launch()
-				.flatMap(Microservices::onShutdown).block();
+		Lunch lunch = new Lunch(lunchService, gatewayPort, seed);
+		Microservices microservices = lunch.launch().block();
+		
+		log.info("Service discovery: {}", microservices.discovery().address());
+		
+		microservices.onShutdown().block();
 	}
 }
