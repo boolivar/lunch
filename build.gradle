@@ -40,6 +40,7 @@ dependencies {
 	implementation "io.scalecube:scalecube-services-gateway-netty:${scalecubeVersion}"
 	implementation "io.scalecube:scalecube-services-discovery:${scalecubeVersion}"
 	implementation "io.scalecube:scalecube-services-transport-jackson:${scalecubeVersion}"
+	implementation "io.scalecube:scalecube-services-transport-rsocket:${scalecubeVersion}"
 	
 	runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
 	runtimeOnly "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
