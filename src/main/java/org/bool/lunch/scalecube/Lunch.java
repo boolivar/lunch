@@ -20,6 +20,7 @@ import io.scalecube.services.discovery.api.ServiceDiscoveryEvent;
 import io.scalecube.services.gateway.Gateway;
 import io.scalecube.services.gateway.GatewayOptions;
 import io.scalecube.services.gateway.http.HttpGateway;
+import io.scalecube.services.registry.api.ServiceRegistry;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -27,17 +28,26 @@ import reactor.core.scheduler.Schedulers;
 public class Lunch {
 	
 	private static final Logger log = LoggerFactory.getLogger(Lunch.class);
-
+	
+	private static final String ROLE_KEY = "role";
+	
+	private static final String MASTER_TAG = "master";
+	
+	private static final String WORKER_TAG = "worker";
+	
 	private final LunchService service;
 	
 	private final int gatewayPort;
 	
 	private final Address seed;
-	
-	public Lunch(LunchService service, int gatewayPort, Address seed) {
+
+	private final ServiceRegistry serviceRegistry;
+
+	public Lunch(LunchService service, int gatewayPort, Address seed, ServiceRegistry serviceRegistry) {
 		this.service = service;
 		this.gatewayPort = gatewayPort;
 		this.seed = seed;
+		this.serviceRegistry = serviceRegistry;
 	}
 	
 	public Mono<Microservices> launch() {
@@ -45,20 +55,21 @@ public class Lunch {
 				.services(service)
 				.gateway(this::gateway)
 				.discovery(this::discovery)
+				.serviceRegistry(serviceRegistry)
 				.transport(RSocketServiceTransport::new)
-				.tags(Collections.singletonMap("role", seed != null ? "member" : "seed"))
+				.tags(Collections.singletonMap(ROLE_KEY, seed == null ? MASTER_TAG : WORKER_TAG))
 				.start()
-				.doOnNext(m -> m.discovery().listenDiscovery().subscribe(e -> handleClusterEvent(m, e)))
 				;
 	}
 	
 	private Gateway gateway(GatewayOptions options) {
 		return new HttpGateway(options.port(gatewayPort).call(options.call().methodRegistry(null)));
 	}
-		
+
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {
 		return new ScalecubeServiceDiscovery(endpoint)
-				.options(clusterConfig -> clusterConfig.membership(this::membership));
+				.options(clusterConfig -> clusterConfig.membership(this::membership))
+				;
 	}
 	
 	private MembershipConfig membership(MembershipConfig config) {
@@ -66,14 +77,6 @@ public class Lunch {
 			return config.seedMembers(seed);
 		}
 		return config;
-	}
-	
-	private void handleClusterEvent(Microservices microservices, ServiceDiscoveryEvent event) {
-		log.info("Received cluster event: {}", event);
-		if (event.isEndpointRemoved() && "seed".equals(event.serviceEndpoint().tags().get("role"))) {
-			log.info("Shutdown service on seed removal");
-			microservices.shutdown().subscribe();
-		}
 	}
 	
 	public static void main(String[] args) {
@@ -85,11 +88,31 @@ public class Lunch {
 		int gatewayPort = args.length > 0 ? Integer.parseInt(args[0]) : 0;
 		Address seed = args.length > 1 ? Address.from(args[1]) : null;
 		
-		Lunch lunch = new Lunch(lunchService, gatewayPort, seed);
+		ServiceFilter serviceFilter = new ServiceFilterFactory()
+				.withQualifier()
+				.withContentType()
+				.withTag(ROLE_KEY)
+				.create();
+		LunchServiceRegistry serviceRegistry = new LunchServiceRegistry(serviceFilter);
+		
+		Lunch lunch = new Lunch(lunchService, gatewayPort, seed, serviceRegistry);
+		
 		Microservices microservices = lunch.launch().block();
 		
 		log.info("Service discovery: {}", microservices.discovery().address());
 		
+		serviceRegistry.registerService(microservices.discovery().serviceEndpoint());
+		
+		microservices.discovery().listenDiscovery().subscribe(event -> handleClusterEvent(microservices, event));
+		
 		microservices.onShutdown().block();
+	}
+	
+	private static void handleClusterEvent(Microservices microservices, ServiceDiscoveryEvent event) {
+		log.info("Received cluster event: {}", event);
+		if (event.isEndpointRemoved() && MASTER_TAG.equals(event.serviceEndpoint().tags().get(ROLE_KEY))) {
+			log.info("Shutdown service on seed removal");
+			microservices.shutdown().subscribe();
+		}
 	}
 }
