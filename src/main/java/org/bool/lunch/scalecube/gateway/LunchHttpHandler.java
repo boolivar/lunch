@@ -3,21 +3,21 @@ package org.bool.lunch.scalecube.gateway;
 import org.reactivestreams.Publisher;
 
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.scalecube.services.ServiceCall;
 import io.scalecube.services.api.ServiceMessage;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServerRequest;
 import reactor.netty.http.server.HttpServerResponse;
 
-public class ServiceCallHttpHandler implements BiFunction<HttpServerRequest, HttpServerResponse, Publisher<Void>> {
+public class LunchHttpHandler implements BiFunction<HttpServerRequest, HttpServerResponse, Publisher<Void>> {
 	
-	private final ServiceCall service;
-	
-	public ServiceCallHttpHandler(ServiceCall service) {
-		this.service = service;
+	private final Function<ServiceMessage, Mono<ServiceMessage>> messageProcessor;
+
+	public LunchHttpHandler(Function<ServiceMessage, Mono<ServiceMessage>> messageProcessor) {
+		this.messageProcessor = messageProcessor;
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class ServiceCallHttpHandler implements BiFunction<HttpServerRequest, Htt
 		return request.receive().aggregate()
 				.defaultIfEmpty(Unpooled.EMPTY_BUFFER)
 				.map(buf -> createMessage(request, buf))
-				.flatMap(service::requestOne)
+				.flatMap(messageProcessor)
 				.flatMap(this::readMessage)
 				.compose(response::sendObject);
 	}
