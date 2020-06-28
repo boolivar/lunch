@@ -51,10 +51,10 @@ public class LunchMessageProcessor implements Function<ServiceMessage, Mono<Serv
 	
 	private Mono<ServiceMessage> requestOne(ServiceReference ref, ServiceMessage message) {
 		return serviceCall.requestOne(message, null, ref.address())
-				.onErrorResume(t -> Mono.just(ServiceMessage.builder().data(t.getMessage()).build()));
+				.onErrorResume(t -> Mono.just(buildMessage(t.getMessage())));
 	}
 	
-	private ServiceMessage buildMessage(Object[] data) {
+	private ServiceMessage buildMessage(Object data) {
 		return ServiceMessage.builder().data(data).build();
 	}
 }
