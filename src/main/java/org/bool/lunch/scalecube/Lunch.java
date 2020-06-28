@@ -8,6 +8,7 @@ import org.bool.lunch.RunnerType;
 import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
 import org.bool.lunch.scalecube.gateway.LunchHttpHandler;
 import org.bool.lunch.scalecube.gateway.LunchHttpServer;
+import org.bool.lunch.scalecube.gateway.LunchMessageEncoder;
 import org.bool.lunch.scalecube.gateway.LunchMessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class Lunch {
 	
 	private Gateway gateway(GatewayOptions options) {
 		LunchMessageProcessor messageProcessor = new LunchMessageProcessor(options.call(), serviceRegistry);
-		LunchHttpHandler handler = new LunchHttpHandler(messageProcessor);
+		LunchHttpHandler handler = new LunchHttpHandler(messageProcessor, new LunchMessageEncoder());
 		LunchHttpServer httpServer = new LunchHttpServer("localhost", gatewayPort, handler);
 		return new LunchHttpGateway(options.id(), "localhost", gatewayPort, httpServer.bind());
 	}
