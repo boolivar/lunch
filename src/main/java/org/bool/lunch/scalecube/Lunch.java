@@ -5,6 +5,10 @@ import org.bool.lunch.DefaultRunnerFactory;
 import org.bool.lunch.LunchRunner;
 import org.bool.lunch.PidReader;
 import org.bool.lunch.RunnerType;
+import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
+import org.bool.lunch.scalecube.gateway.LunchHttpHandler;
+import org.bool.lunch.scalecube.gateway.LunchHttpServer;
+import org.bool.lunch.scalecube.gateway.LunchMessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +23,6 @@ import io.scalecube.services.discovery.api.ServiceDiscovery;
 import io.scalecube.services.discovery.api.ServiceDiscoveryEvent;
 import io.scalecube.services.gateway.Gateway;
 import io.scalecube.services.gateway.GatewayOptions;
-import io.scalecube.services.gateway.http.HttpGateway;
 import io.scalecube.services.registry.api.ServiceRegistry;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import reactor.core.publisher.Mono;
@@ -63,7 +66,10 @@ public class Lunch {
 	}
 	
 	private Gateway gateway(GatewayOptions options) {
-		return new HttpGateway(options.port(gatewayPort).call(options.call().methodRegistry(null)));
+		LunchMessageProcessor messageProcessor = new LunchMessageProcessor(options.call(), serviceRegistry);
+		LunchHttpHandler handler = new LunchHttpHandler(messageProcessor);
+		LunchHttpServer httpServer = new LunchHttpServer("localhost", gatewayPort, handler);
+		return new LunchHttpGateway(options.id(), "localhost", gatewayPort, httpServer.bind());
 	}
 
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {
