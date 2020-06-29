@@ -14,7 +14,7 @@ public class LunchMessageEncoder implements BiConsumer<ServiceMessage, ByteBuf> 
 	public void accept(ServiceMessage message, ByteBuf buffer) {
 		DataCodec codec = DataCodec.getInstance(message.dataFormatOrDefault());
 		try {
-			codec.encode(new ByteBufOutputStream(buffer), message);
+			codec.encode(new ByteBufOutputStream(buffer), message.data());
 		} catch (IOException e) {
 			throw new RuntimeException("Error encode message " + message, e);
 		}

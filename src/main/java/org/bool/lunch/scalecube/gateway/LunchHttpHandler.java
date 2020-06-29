@@ -30,7 +30,7 @@ public class LunchHttpHandler implements BiFunction<HttpServerRequest, HttpServe
 				.defaultIfEmpty(Unpooled.EMPTY_BUFFER)
 				.map(buf -> createMessage(request, buf))
 				.flatMap(messageProcessor)
-				.map(message -> encodeResponse(response, message))
+				.flatMap(message -> encodeResponse(response, message))
 				.compose(response::sendObject)
 				;
 	}
