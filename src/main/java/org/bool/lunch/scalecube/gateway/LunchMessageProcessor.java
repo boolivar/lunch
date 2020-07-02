@@ -41,20 +41,19 @@ public class LunchMessageProcessor implements Function<ServiceMessage, Mono<Serv
 			return Mono.empty();
 		}
 		
-		List<Mono<ServiceMessage>> monos = refs.stream()
+		List<Mono<?>> monos = refs.stream()
 				.limit(scale)
-				.map(ref -> requestOne(ref, message))
+				.map(ref -> requestPart(ref, message))
 				.collect(Collectors.toList());
 		
-		return Mono.zip(monos, this::buildMessage);
+		return Mono.zip(monos, data -> ServiceMessage.builder().data(data).build());
 	}
 	
-	private Mono<ServiceMessage> requestOne(ServiceReference ref, ServiceMessage message) {
-		return serviceCall.requestOne(message, null, ref.address())
-				.onErrorResume(t -> Mono.just(buildMessage(t.getMessage())));
-	}
-	
-	private ServiceMessage buildMessage(Object data) {
-		return ServiceMessage.builder().data(data).build();
+	private Mono<?> requestPart(ServiceReference ref, ServiceMessage message) {
+		return serviceCall.requestOne(message, Object.class, ref.address())
+				.map(ServiceMessage::data)
+				.onErrorResume(t -> Mono.just(t.getMessage()))
+				.map(data -> new NodeInfo(ref.endpointId(), ref.address().toString(), ref.tags(), data))
+				;
 	}
 }
