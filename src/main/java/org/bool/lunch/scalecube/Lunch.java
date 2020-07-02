@@ -8,7 +8,6 @@ import org.bool.lunch.RunnerType;
 import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
 import org.bool.lunch.scalecube.gateway.LunchHttpHandler;
 import org.bool.lunch.scalecube.gateway.LunchHttpServer;
-import org.bool.lunch.scalecube.gateway.LunchMessageEncoder;
 import org.bool.lunch.scalecube.gateway.LunchMessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +24,7 @@ import io.scalecube.services.discovery.api.ServiceDiscoveryEvent;
 import io.scalecube.services.gateway.Gateway;
 import io.scalecube.services.gateway.GatewayOptions;
 import io.scalecube.services.registry.api.ServiceRegistry;
+import io.scalecube.services.transport.api.DataCodec;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -33,12 +33,14 @@ public class Lunch {
 	
 	private static final Logger log = LoggerFactory.getLogger(Lunch.class);
 	
+	private static final String CONTENT_TYPE = "application/json";
+	
 	private static final String ROLE_KEY = "role";
 	
 	private static final String MASTER_TAG = "master";
 	
 	private static final String WORKER_TAG = "worker";
-	
+
 	private final LunchService service;
 	
 	private final int gatewayPort;
@@ -67,8 +69,8 @@ public class Lunch {
 	}
 	
 	private Gateway gateway(GatewayOptions options) {
-		LunchMessageProcessor messageProcessor = new LunchMessageProcessor(options.call(), serviceRegistry);
-		LunchHttpHandler handler = new LunchHttpHandler(messageProcessor, new LunchMessageEncoder());
+		LunchMessageProcessor messageProcessor = new LunchMessageProcessor(options.call().methodRegistry(null), serviceRegistry);
+		LunchHttpHandler handler = new LunchHttpHandler(messageProcessor, DataCodec.getInstance(CONTENT_TYPE));
 		LunchHttpServer httpServer = new LunchHttpServer("localhost", gatewayPort, handler);
 		return new LunchHttpGateway(options.id(), "localhost", gatewayPort, httpServer.bind());
 	}
