@@ -1,33 +1,25 @@
 package org.bool.lunch;
 
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class CachedRunnerFactory<T> {
+public class CachedRunnerFactory implements RunnerFactory {
 
 	private final RunnerFactory delegate;
 	
-	private final Map<T, Runner> runners;
+	private final Map<String, Runner> cache;
 	
-	private final Function<T, RunnerType> keyMapper;
-	
-	public static RunnerFactory cachedWrapper(RunnerFactory runnerFactory) {
-		return new CachedRunnerFactory<>(runnerFactory, t -> t, new EnumMap<>(RunnerType.class))::lookup;
+	public CachedRunnerFactory(RunnerFactory delegate) {
+		this(delegate, new ConcurrentHashMap<>());
 	}
 	
-	public CachedRunnerFactory(RunnerFactory delegate, Function<T, RunnerType> keyMapper) {
-		this(delegate, keyMapper, new HashMap<>());
-	}
-	
-	public CachedRunnerFactory(RunnerFactory delegate, Function<T, RunnerType> keyMapper, Map<T, Runner> runners) {
+	public CachedRunnerFactory(RunnerFactory delegate, Map<String, Runner> cache) {
 		this.delegate = delegate;
-		this.keyMapper = keyMapper;
-		this.runners = runners;
+		this.cache = cache;
 	}
 	
-	public Runner lookup(T type) {
-		return runners.computeIfAbsent(type, keyMapper.andThen(delegate::create));
+	@Override
+	public Runner create(String type) {
+		return cache.computeIfAbsent(type, delegate::create);
 	}
 }

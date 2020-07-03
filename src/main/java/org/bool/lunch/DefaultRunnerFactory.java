@@ -10,16 +10,16 @@ import java.util.stream.Collectors;
 public class DefaultRunnerFactory implements RunnerFactory {
 
 	@Override
-	public Runner create(RunnerType type) {
+	public Runner create(String type) {
 		switch (type) {
-		case JAVA:
+		case "JAVA":
 			return createJavaRunner();
-		case PROCESS:
+		case "PROCESS":
 			return createProcessRunner();
-		case THREAD:
+		case "THREAD":
 			return createThreadRunner();
 		default:
-			throw new IllegalArgumentException("Unexpected runner type: " + type);
+			return instantiateRunner(type);
 		}
 	}
 
@@ -33,6 +33,14 @@ public class DefaultRunnerFactory implements RunnerFactory {
 	
 	private ProcessRunner createProcessRunner() {
 		return new ProcessRunner();
+	}
+	
+	private Runner instantiateRunner(String className) {
+		try {
+			return (Runner) Class.forName(className).newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException("Error creating runner " + className, e);
+		}
 	}
 	
 	private String classpath() {

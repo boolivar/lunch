@@ -1,16 +1,15 @@
 package org.bool.lunch;
 
 import java.util.Collections;
-import java.util.function.Function;
 
 public class LunchRunner {
 	
-	private final Function<String, Runner> mapper;
+	private final RunnerFactory runnerFactory;
 	
 	private final PidReader pidReader;
 
-	public LunchRunner(Function<String, Runner> mapper, PidReader pidReader) {
-		this.mapper = mapper;
+	public LunchRunner(RunnerFactory runnerFactory, PidReader pidReader) {
+		this.runnerFactory = runnerFactory;
 		this.pidReader = pidReader;
 	}
 	
@@ -29,6 +28,6 @@ public class LunchRunner {
 		if (type == null) {
 			type = RunnerType.JAVA.name();
 		}
-		return mapper.apply(type.toUpperCase());
+		return runnerFactory.create(type);
 	}
 }
