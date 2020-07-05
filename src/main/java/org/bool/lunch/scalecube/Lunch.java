@@ -36,6 +36,8 @@ public class Lunch {
 	
 	private static final String ROLE_KEY = "role";
 	
+	private static final String NODE_KEY = "node";
+	
 	private static final String MASTER_TAG = "master";
 	
 	private static final String WORKER_TAG = "worker";
@@ -100,6 +102,7 @@ public class Lunch {
 				.withQualifier()
 				.withContentType()
 				.withTag(ROLE_KEY)
+				.withId(NODE_KEY)
 				.create();
 		LunchServiceRegistry serviceRegistry = new LunchServiceRegistry(serviceFilter);
 		

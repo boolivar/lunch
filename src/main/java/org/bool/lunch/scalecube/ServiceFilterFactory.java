@@ -2,6 +2,7 @@ package org.bool.lunch.scalecube;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 import io.scalecube.services.ServiceReference;
 import io.scalecube.services.api.ServiceMessage;
@@ -32,6 +33,13 @@ public class ServiceFilterFactory {
 		return and((service, message) -> {
 			String value = message.header(key);
 			return value == null || value.equals(service.tags().get(key));  
+		});
+	}
+	
+	public ServiceFilterFactory withId(String key) {
+		return and((service, message) -> {
+			String value = message.header(key);
+			return value == null || value.equals(service.endpointId());  
 		});
 	}
 	
