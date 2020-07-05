@@ -42,9 +42,9 @@ public class LocalLunchServiceTest {
 		given(luncher.launch(any()))
 			.willReturn(Flux.from(Mono.fromSupplier(supplier)));
 		
-		Flux<Lunched> result = service.launch(new LunchItem());
+		Flux<LunchInfo> result = service.launch(new LunchItem());
 		
-		MutableObject<Lunched> subscriber = new MutableObject<>();
+		MutableObject<LunchInfo> subscriber = new MutableObject<>();
 		result.subscribe(subscriber::setValue);
 		
 		assertSame(lunched, subscriber.getValue());

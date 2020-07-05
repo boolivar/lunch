@@ -27,30 +27,32 @@ public class LocalLunchService implements LunchService {
 	}
 
 	@Override
-	public Flux<Lunched> launch(LunchItem item) {
+	public Flux<LunchInfo> launch(LunchItem item) {
 		return luncher.launch(item)
 				.doOnNext(lunched -> lunchedMap.put(lunched.getPid(), lunched))
+				.map(this::buildInfo)
 				.cache()
 				;
 	}
 
 	@Override
-	public Mono<Lunched> land(String pid) {
+	public Mono<LunchInfo> land(String pid) {
 		return Mono.justOrEmpty(lunchedMap.get(pid))
 				.doOnNext(lunched -> lunched.getProcess().destroy())
+				.map(this::buildInfo)
 				;
 	}
 
 	@Override
-	public Mono<List<Stat>> stats() {
+	public Mono<List<LunchInfo>> stats() {
 		return Mono.just(lunchedMap.values())
-				.map(values -> values.stream().map(this::buildStat).collect(Collectors.toList()))
+				.map(values -> values.stream().map(this::buildInfo).collect(Collectors.toList()))
 				.cache()
 				;
 	}
 
-	private Stat buildStat(Lunched lunched) {
-		return new Stat(lunched.getPid(), lunched.getLunchItem(),
-				lunched.getProcess().isAlive() ? null : lunched.getProcess().exitValue());
+	private LunchInfo buildInfo(Lunched lunched) {
+		return new LunchInfo(lunched.getPid(), lunched.getProcess().isAlive() ? null : lunched.getProcess().exitValue(),
+				lunched.getLunchItem());
 	}
 }

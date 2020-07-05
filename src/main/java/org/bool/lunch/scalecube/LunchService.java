@@ -1,7 +1,6 @@
 package org.bool.lunch.scalecube;
 
 import org.bool.lunch.LunchItem;
-import org.bool.lunch.Lunched;
 
 import java.util.List;
 
@@ -14,11 +13,11 @@ import reactor.core.publisher.Mono;
 public interface LunchService {
 
 	@ServiceMethod
-	Flux<Lunched> launch(LunchItem item);
+	Flux<LunchInfo> launch(LunchItem item);
 
 	@ServiceMethod
-	Mono<Lunched> land(String pid);
+	Mono<LunchInfo> land(String pid);
 
 	@ServiceMethod
-	Mono<List<Stat>> stats();
+	Mono<List<LunchInfo>> stats();
 }
