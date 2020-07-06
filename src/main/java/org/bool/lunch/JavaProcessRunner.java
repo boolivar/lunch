@@ -19,12 +19,12 @@ public class JavaProcessRunner implements Runner {
 		this.classPath = classPath;
 	}
 	
-	public Process run(Class<?> cls, Collection<String> args, Collection<String> javaArgs) {
+	public LunchProcess run(Class<?> cls, Collection<String> args, Collection<String> javaArgs) {
 		return run(cls.getSimpleName() + " " + args.stream().collect(Collectors.joining(" ")), javaArgs);
 	}
 
 	@Override
-	public Process run(String command, Collection<String> javaArgs) {
+	public LunchProcess run(String command, Collection<String> javaArgs) {
 		ArrayList<String> commandArgs = new ArrayList<>();
 		commandArgs.addAll(javaArgs);
 		commandArgs.add("-cp");

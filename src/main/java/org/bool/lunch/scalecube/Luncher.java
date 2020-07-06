@@ -33,7 +33,7 @@ public class Luncher {
 
 			int exitCode = lunch.getProcess().waitFor();
 			if (exitCode != 0) {
-				throw new ProcessTerminatedException(lunch.getPid(), exitCode);
+				throw new ProcessTerminatedException(lunch.getProcess().getId(), exitCode);
 			}
 			sink.complete();
 		} catch (Exception e) {

@@ -3,7 +3,6 @@ package org.bool.lunch.scalecube;
 import org.bool.lunch.CachedRunnerFactory;
 import org.bool.lunch.DefaultRunnerFactory;
 import org.bool.lunch.LunchRunner;
-import org.bool.lunch.PidReader;
 import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
 import org.bool.lunch.scalecube.gateway.LunchHttpHandler;
 import org.bool.lunch.scalecube.gateway.LunchHttpServer;
@@ -91,7 +90,7 @@ public class Lunch {
 	
 	public static void main(String[] args) {
 		CachedRunnerFactory factory = new CachedRunnerFactory(new DefaultRunnerFactory());
-		LunchRunner runner = new LunchRunner(factory, PidReader.DEFAULT);
+		LunchRunner runner = new LunchRunner(factory);
 		Luncher luncher = new Luncher(runner, Schedulers.newElastic("local-lunch"));
 		LocalLunchService lunchService = new LocalLunchService(luncher);
 		

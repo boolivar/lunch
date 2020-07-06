@@ -2,8 +2,7 @@ package org.bool.lunch;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,12 +46,12 @@ public class JavaProcessRunnerTest {
 	
 	private static class TestProcessRunner implements Runner {
 		@Override
-		public Process run(String command, Collection<String> args) {
+		public LunchProcess run(String command, Collection<String> args) {
 			return new TestProcess(command, args);
 		}
 	}
 	
-	static class TestProcess extends Process {
+	static class TestProcess implements LunchProcess {
 		
 		private final String command;
 		
@@ -70,30 +69,15 @@ public class JavaProcessRunnerTest {
 		public Collection<String> getArgs() {
 			return args;
 		}
-		
+
 		@Override
-		public OutputStream getOutputStream() {
+		public String getId() {
 			return null;
 		}
 
 		@Override
-		public InputStream getInputStream() {
+		public Integer waitFor(Duration duration) throws InterruptedException {
 			return null;
-		}
-
-		@Override
-		public InputStream getErrorStream() {
-			return null;
-		}
-
-		@Override
-		public int waitFor() throws InterruptedException {
-			return 0;
-		}
-
-		@Override
-		public int exitValue() {
-			return 0;
 		}
 
 		@Override

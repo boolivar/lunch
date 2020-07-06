@@ -2,23 +2,16 @@ package org.bool.lunch;
 
 public class Lunched {
 
-	private final String pid;
-	
-	private final Process process;
+	private final LunchProcess process;
 	
 	private final LunchItem lunchItem;
 	
-	public Lunched(String pid, Process process, LunchItem lunchItem) {
-		this.pid = pid;
+	public Lunched(LunchProcess process, LunchItem lunchItem) {
 		this.process = process;
 		this.lunchItem = lunchItem;
 	}
 
-	public String getPid() {
-		return pid;
-	}
-
-	public Process getProcess() {
+	public LunchProcess getProcess() {
 		return process;
 	}
 

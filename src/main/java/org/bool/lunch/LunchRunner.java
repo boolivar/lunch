@@ -6,20 +6,16 @@ public class LunchRunner {
 	
 	private final RunnerFactory runnerFactory;
 	
-	private final PidReader pidReader;
-
-	public LunchRunner(RunnerFactory runnerFactory, PidReader pidReader) {
+	public LunchRunner(RunnerFactory runnerFactory) {
 		this.runnerFactory = runnerFactory;
-		this.pidReader = pidReader;
 	}
 	
 	public Lunched launch(LunchItem item) {
-		Process process = run(item);
-		String pid = pidReader.processId(process);
-		return new Lunched(pid, process, item);
+		LunchProcess process = run(item);
+		return new Lunched(process, item);
 	}
 	
-	private Process run(LunchItem item) {
+	private LunchProcess run(LunchItem item) {
 		Runner runner = lookupRunner(item.getType());
 		return runner.run(item.getCommand(), item.getArgs() != null ? item.getArgs() : Collections.emptyList());
 	}

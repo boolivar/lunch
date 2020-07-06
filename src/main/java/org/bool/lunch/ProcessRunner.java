@@ -8,29 +8,35 @@ import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 public class ProcessRunner implements Runner {
 	
 	private static final Logger log = LoggerFactory.getLogger(ProcessRunner.class);
 
-	private Redirect redirectOutput = Redirect.INHERIT;
+	private final Function<Process, String> pidReader;
 	
-	private boolean redirectErrorStream = true;
+	private final Redirect redirectOutput;
 	
-	public void setRedirectOutput(Redirect redirectOutput) {
-		this.redirectOutput = redirectOutput;
+	private final boolean redirectErrorStream;
+	
+	public ProcessRunner() {
+		this(PidReader.DEFAULT::processId, Redirect.INHERIT, true);
 	}
-
-	public void setRedirectErrorStream(boolean redirectErrorStream) {
+	
+	public ProcessRunner(Function<Process, String> pidReader, Redirect redirectOutput, boolean redirectErrorStream) {
+		this.pidReader = pidReader;
+		this.redirectOutput = redirectOutput;
 		this.redirectErrorStream = redirectErrorStream;
 	}
 	
 	@Override
-	public Process run(String command, Collection<String> args) {
+	public NativeLunchProcess run(String command, Collection<String> args) {
 		ArrayList<String> commandArgs = new ArrayList<>();
 		commandArgs.add(command);
 		commandArgs.addAll(args);
-		return run(commandArgs);
+		Process process = run(commandArgs);
+		return new NativeLunchProcess(pidReader.apply(process), process);
 	}
 	
 	public Process run(List<String> args) {

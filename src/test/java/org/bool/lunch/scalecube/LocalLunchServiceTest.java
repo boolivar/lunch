@@ -35,7 +35,7 @@ public class LocalLunchServiceTest {
 	
 	@Test
 	void testCache() {
-		Lunched lunched = new Lunched("test-pid", null, null);
+		Lunched lunched = new Lunched(null, null);
 		
 		given(supplier.get())
 			.willReturn(lunched);

@@ -28,7 +28,7 @@ public class Main {
 	
 	private static void run(Lunch lunch) throws ClassNotFoundException {
 		DefaultRunnerFactory runnerFactory = new DefaultRunnerFactory();
-		LunchRunner runner = new LunchRunner(runnerFactory, PidReader.DEFAULT);
+		LunchRunner runner = new LunchRunner(runnerFactory);
 		LunchBox lunchBox = new LunchBox(runner);
 		LaunchPad lunchPad = new AkkaPad(new LunchItemActorFactory(lunchBox));
 		lunchPad.launch(lunch);

@@ -15,7 +15,7 @@ public class ExecutorRunner implements Runner {
 	}
 
 	@Override
-	public Process run(String command, Collection<String> args) {
+	public LunchProcess run(String command, Collection<String> args) {
 		executor.execute(() -> runner.run(command, args));
 		return null;
 	}

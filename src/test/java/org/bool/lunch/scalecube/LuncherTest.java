@@ -2,6 +2,7 @@ package org.bool.lunch.scalecube;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.bool.lunch.LunchItem;
+import org.bool.lunch.LunchProcess;
 import org.bool.lunch.LunchRunner;
 import org.bool.lunch.Lunched;
 import org.junit.jupiter.api.Test;
@@ -10,13 +11,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.*;
 
 class LuncherTest {
 	
 	LunchRunner lunchRunner = mock(LunchRunner.class);
 	
-	Process process = mock(Process.class);
+	LunchProcess process = mock(LunchProcess.class);
 	
 	Luncher luncher = new Luncher(lunchRunner, Schedulers.immediate());
 
@@ -33,12 +35,12 @@ class LuncherTest {
 		LunchItem lunchItem = new LunchItem("test");
 
 		given(lunchRunner.launch(lunchItem))
-			.willReturn(new Lunched("test-pid", process, lunchItem));
+			.willReturn(new Lunched(process, lunchItem));
 		
 		Lunched lunched = luncher.launch(lunchItem)
 			.blockLast();
 		
-		assertEquals("test-pid", lunched.getPid());
+		assertSame(process, lunched.getProcess());
 	}
 
 	@Test
@@ -48,7 +50,7 @@ class LuncherTest {
 		given(process.waitFor())
 			.willReturn(10);
 		given(lunchRunner.launch(lunchItem))
-			.willReturn(new Lunched("pid-test", process, lunchItem));
+			.willReturn(new Lunched(process, lunchItem));
 
 		MutableObject<Lunched> lunchedResult = new MutableObject<>();
 		MutableObject<Throwable> lunchedError = new MutableObject<>();
@@ -56,7 +58,7 @@ class LuncherTest {
 		luncher.launch(lunchItem)
 			.subscribe(lunchedResult::setValue, lunchedError::setValue);
 		
-		assertEquals("pid-test", lunchedResult.getValue().getPid());
+		assertSame(process, lunchedResult.getValue().getProcess());
 		assertEquals(10, ((ProcessTerminatedException) lunchedError.getValue()).getExitCode());
 		assertEquals("pid-test", ((ProcessTerminatedException) lunchedError.getValue()).getPid());
 	}
@@ -65,7 +67,7 @@ class LuncherTest {
 	void testColdPublish() {
 		LunchItem lunchItem = new LunchItem();
 		given(lunchRunner.launch(any()))
-			.willReturn(new Lunched("pid-test", process, null));
+			.willReturn(new Lunched(process, null));
 		
 		Flux<Lunched> flux = luncher.launch(lunchItem);
 		
