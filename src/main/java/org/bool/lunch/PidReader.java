@@ -5,18 +5,18 @@ import org.bool.jpid.PidUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PidReader {
 	
-	public static final PidReader DEFAULT = new PidReader(PidUtils.cache(new HashMap<>()));
+	public static final PidReader DEFAULT = new PidReader(PidUtils.cache(new ConcurrentHashMap<>()));
 	
 	private static final Logger log = LoggerFactory.getLogger(PidReader.class);
 	
-	private final LongValueAccessor pidAccessor;
+	private final LongValueAccessor valueAccessor;
 	
-	public PidReader(LongValueAccessor pidAccessor) {
-		this.pidAccessor = pidAccessor;
+	public PidReader(LongValueAccessor valueAccessor) {
+		this.valueAccessor = valueAccessor;
 	}
 	
 	public String processId(Process process) {
@@ -24,7 +24,7 @@ public class PidReader {
 			return "this(" + PidUtils.getPid() + ")";
 		}
 		try {
-			return String.valueOf(pidAccessor.getValue(process));
+			return String.valueOf(valueAccessor.getValue(process));
 		} catch (Exception e) {
 			log.warn("Error reading processId", e);
 		}
