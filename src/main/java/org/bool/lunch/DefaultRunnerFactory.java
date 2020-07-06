@@ -24,7 +24,7 @@ public class DefaultRunnerFactory implements RunnerFactory {
 	}
 
 	private ExecutorRunner createThreadRunner() {
-		return new ExecutorRunner(Executors.newCachedThreadPool(), new ClassRunner());
+		return new ExecutorRunner(Executors.newCachedThreadPool(), new ClassRunner()::run);
 	}
 	
 	private JavaProcessRunner createJavaRunner() {

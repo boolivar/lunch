@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-public class ClassRunner implements Runner {
+public class ClassRunner {
 	
 	private static final Logger log = LoggerFactory.getLogger(ClassRunner.class);
 
@@ -20,10 +20,9 @@ public class ClassRunner implements Runner {
 		this.method = method;
 	}
 	
-	@Override
-	public Process run(String className, Collection<String> args) {
+	public int run(String className, Collection<String> args) {
 		run(className, method, args);
-		return null;
+		return 0;
 	}
 	
 	public Object runClass(String className, Collection<String> args) {
