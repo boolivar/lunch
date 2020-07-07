@@ -1,4 +1,6 @@
-package org.bool.lunch;
+package org.bool.lunch.akka;
+
+import org.bool.lunch.Command;
 
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;

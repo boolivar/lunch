@@ -1,4 +1,6 @@
-package org.bool.lunch;
+package org.bool.lunch.akka;
+
+import org.bool.lunch.LunchItem;
 
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
