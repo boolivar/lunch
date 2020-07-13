@@ -25,7 +25,7 @@ public class LocalPad implements LaunchPad {
 			BlockingQueue<Lunched> queue = new LinkedBlockingQueue<>();
 			for (LunchItem item : lunch.getItems()) {
 				Lunched lunched = lunchBox.launch(item, (what, exitCode) -> queue.offer(what));
-				log.info("Process {} for {} started", lunched.getProcess().getId(), lunched.getLunchItem());
+				log.info("Process {} for {} started", lunched.getProcess().getPid(), lunched.getLunchItem());
 			}
 			queue.take();
 		} catch (Exception e) {

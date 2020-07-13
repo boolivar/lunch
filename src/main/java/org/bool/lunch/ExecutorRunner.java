@@ -1,14 +1,15 @@
 package org.bool.lunch;
 
+import org.bool.jpid.PidUtils;
+
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.ToIntBiFunction;
 
 public class ExecutorRunner implements Runner {
 	
-	private static final AtomicInteger counter = new AtomicInteger();
+	private static final String PID = PidUtils.getPid().toString();
 	
 	private final ExecutorService executor;
 	
@@ -22,6 +23,6 @@ public class ExecutorRunner implements Runner {
 	@Override
 	public LunchProcess run(String command, Collection<String> args) {
 		Future<Integer> future = executor.submit(() -> handler.applyAsInt(command, args));
-		return new FutureLunchProcess(String.valueOf(counter.incrementAndGet()), future);
+		return new FutureLunchProcess(PID, future);
 	}
 }

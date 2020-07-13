@@ -22,7 +22,7 @@ public interface LunchProcess {
 		return waitFor(INFINITE_WAIT);
 	}
 	
-	String getId();
+	String getPid();
 	
 	Integer waitFor(Duration duration) throws InterruptedException;
 	

@@ -8,18 +8,18 @@ import java.util.concurrent.TimeoutException;
 
 public class FutureLunchProcess implements LunchProcess {
 
-	private final String id;
+	private final String pid;
 	
 	private final Future<Integer> future;
 
-	public FutureLunchProcess(String id, Future<Integer> future) {
-		this.id = id;
+	public FutureLunchProcess(String pid, Future<Integer> future) {
+		this.pid = pid;
 		this.future = future;
 	}
 	
 	@Override
-	public String getId() {
-		return id;
+	public String getPid() {
+		return pid;
 	}
 
 	@Override

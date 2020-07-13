@@ -15,7 +15,7 @@ public class NativeLunchProcess implements LunchProcess {
 	}
 	
 	@Override
-	public String getId() {
+	public String getPid() {
 		return pid;
 	}
 

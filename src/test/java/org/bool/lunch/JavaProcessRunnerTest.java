@@ -71,7 +71,7 @@ public class JavaProcessRunnerTest {
 		}
 
 		@Override
-		public String getId() {
+		public String getPid() {
 			return null;
 		}
 
