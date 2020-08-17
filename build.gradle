@@ -16,7 +16,7 @@ checkstyle {
 repositories {
 	mavenCentral()
 	maven {
-		url 'https://dl.bintray.com/boolivar/java'
+		url "https://dl.bintray.com/boolivar/java"
 	}
 }
 
@@ -30,8 +30,9 @@ dependencies {
 	
 	implementation "org.apache.commons:commons-lang3:3.9"
 	implementation "org.bool.jpid:jpid-utils:1.0.1"
-	implementation "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
 	implementation "org.slf4j:slf4j-api:1.7.25"
+	implementation "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
+	implementation "com.hierynomus:sshj:0.29.0"
 	implementation "com.lightbend.akka.management:akka-management-cluster-http_${scalaVersion}:1.0.6"
 	implementation "com.typesafe.akka:akka-cluster-typed_${scalaVersion}:${akkaVersion}"
 	
