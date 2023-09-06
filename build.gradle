@@ -29,6 +29,16 @@ checkstyle {
 	toolVersion = "10.12.1"
 }
 
+pmd {
+	consoleOutput = true
+	toolVersion = "6.55.0"
+	ruleSets = ["ruleset.xml"]
+}
+
+tasks.withType(Pmd).configureEach {
+	pmdClasspath += files("gradle/config/pmd")
+}
+
 repositories {
 	mavenCentral()
 }
