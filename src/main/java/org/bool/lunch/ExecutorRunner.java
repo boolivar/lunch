@@ -1,7 +1,5 @@
 package org.bool.lunch;
 
-import org.bool.jpid.PidUtils;
-
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -9,7 +7,7 @@ import java.util.function.ToIntBiFunction;
 
 public class ExecutorRunner implements Runner {
 	
-	private static final String PID = PidUtils.getPid().toString();
+	private static final String PID = String.valueOf(ProcessHandle.current().pid());
 	
 	private final ExecutorService executor;
 	

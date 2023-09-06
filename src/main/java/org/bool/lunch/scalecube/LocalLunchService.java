@@ -29,7 +29,7 @@ public class LocalLunchService implements LunchService {
 	@Override
 	public Flux<LunchInfo> launch(LunchItem item) {
 		return luncher.launch(item)
-				.doOnNext(lunched -> lunchedMap.put(lunched.getUid(), lunched))
+				.doOnNext(lunched -> lunchedMap.put(lunched.getProcess().getPid(), lunched))
 				.map(this::buildInfo)
 				.cache()
 				;
@@ -52,6 +52,6 @@ public class LocalLunchService implements LunchService {
 	}
 
 	private LunchInfo buildInfo(Lunched lunched) {
-		return new LunchInfo(lunched.getUid(), lunched.getProcess().exitCode(), lunched.getLunchItem());
+		return new LunchInfo(lunched.getProcess().getPid(), lunched.getProcess().exitCode(), lunched.getLunchItem());
 	}
 }

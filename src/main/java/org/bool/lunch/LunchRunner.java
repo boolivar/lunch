@@ -1,7 +1,6 @@
 package org.bool.lunch;
 
 import java.util.Collections;
-import java.util.UUID;
 
 public class LunchRunner {
 	
@@ -13,7 +12,7 @@ public class LunchRunner {
 	
 	public Lunched launch(LunchItem item) {
 		LunchProcess process = run(item);
-		return new Lunched(UUID.randomUUID().toString(), process, item);
+		return new Lunched(process, item);
 	}
 	
 	private LunchProcess run(LunchItem item) {
