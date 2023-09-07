@@ -72,7 +72,7 @@ public class Lunch {
 		LunchMessageProcessor messageProcessor = new LunchMessageProcessor(options.call().methodRegistry(null), serviceRegistry);
 		LunchHttpHandler handler = new LunchHttpHandler(messageProcessor, DataCodec.getInstance(CONTENT_TYPE));
 		LunchHttpServer httpServer = new LunchHttpServer("localhost", gatewayPort, handler);
-		return new LunchHttpGateway(options.id(), "localhost", gatewayPort, httpServer.bind());
+		return new LunchHttpGateway(options, httpServer);
 	}
 
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {

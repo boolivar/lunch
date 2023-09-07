@@ -1,45 +1,66 @@
 package org.bool.lunch.scalecube;
 
-import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
-import org.junit.jupiter.api.Test;
-
 import io.scalecube.net.Address;
+import io.scalecube.services.gateway.Gateway;
+import io.scalecube.services.gateway.GatewayOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
-import reactor.netty.DisposableServer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
+import org.bool.lunch.scalecube.gateway.LunchHttpServer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class LunchHttpGatewayTest {
 	
-	DisposableServer server = mock(DisposableServer.class);
+	private final LunchHttpServer server = mock(LunchHttpServer.class);
 
-	LunchHttpGateway gateway = new LunchHttpGateway("test-gateway", Address.from("test:1234"), Mono.just(server));
+	private final LunchHttpGateway gateway = new LunchHttpGateway(new GatewayOptions().id("testId"), server);
 
 	@Test
-	void testNoInteractions() {
-		assertEquals("test-gateway", gateway.id());
-		assertEquals("test", gateway.address().host());
-		assertEquals(1234, gateway.address().port());
-		
-		gateway.start();
-		gateway.stop();
-		
-		then(server)
-				.shouldHaveNoInteractions();
+	void testGetters() {
+		Address address = Address.create("host", 1234);
+		given(server.getAddress())
+			.willReturn(address);
+
+		assertThat(gateway)
+			.returns("testId", Gateway::id)
+			.returns(address, Gateway::address)
+			;
 	}
 	
 	@Test
 	void testStart() {
-		assertSame(gateway, gateway.start().block());
+		Address address = Address.create("host", 1234);
+		given(server.getAddress())
+			.willReturn(address);
+		given(server.bind())
+			.willReturn(Mono.just(mock()));
+
+		Gateway active = gateway.start().block();
+		assertThat(active)
+			.isNotSameAs(gateway)
+			.returns("testId", Gateway::id)
+			.returns(address, Gateway::address)
+			;
+
+		assertThat(active.stop())
+			.isNotNull();
+		assertThat(gateway.stop())
+			.isNotNull();
+		then(server.bind().block()).should(never()).dispose();
 	}
 	
 	@Test
 	void testStop() {
-		gateway.stop().block();
-		
-		then(server)
-				.should().dispose();
+		given(server.bind())
+			.willReturn(Mono.just(mock()));
+		assertThat(gateway.start().block().stop().block())
+			.isNull();
+		then(server.bind().block()).should().dispose();
 	}
 }
