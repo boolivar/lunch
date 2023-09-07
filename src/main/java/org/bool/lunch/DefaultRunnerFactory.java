@@ -1,11 +1,13 @@
 package org.bool.lunch;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+
 import java.io.File;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DefaultRunnerFactory implements RunnerFactory {
 
@@ -26,33 +28,33 @@ public class DefaultRunnerFactory implements RunnerFactory {
 	private ExecutorRunner createThreadRunner() {
 		return new ExecutorRunner(Executors.newCachedThreadPool(), new ClassRunner()::run);
 	}
-	
+
 	private JavaProcessRunner createJavaRunner() {
-		return new JavaProcessRunner(new ProcessRunner(), "java", classpath());
+		return new JavaProcessRunner(new ProcessRunner(), "java", classpath(Thread.currentThread().getContextClassLoader()));
 	}
-	
+
 	private ProcessRunner createProcessRunner() {
 		return new ProcessRunner();
 	}
 	
 	private Runner instantiateRunner(String className) {
 		try {
-			return (Runner) Class.forName(className).newInstance();
+			return (Runner) Class.forName(className).getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating runner " + className, e);
 		}
 	}
-	
-	private String classpath() {
-		return Arrays.stream(getClassLoader().getURLs())
-				.map(URL::getFile).collect(Collectors.joining(File.pathSeparator));
+
+	private String classpath(ClassLoader cl) {
+		return Stream.of(retrieveClaspath(cl)).map(URL::getFile).collect(Collectors.joining(File.pathSeparator));
 	}
-	
-	private URLClassLoader getClassLoader() {
-		ClassLoader classLoader = DefaultRunnerFactory.class.getClassLoader();
-		if (classLoader instanceof URLClassLoader) {
-			return (URLClassLoader) classLoader;
+
+	private URL[] retrieveClaspath(ClassLoader cl) {
+		try {
+			Object ucp = FieldUtils.readField(cl, "ucp", true);
+			return (URL[]) MethodUtils.invokeMethod(ucp, true, "getURLs");
+		} catch (Exception e) {
+			throw new RuntimeException("Error read urls from classLoader: " + cl, e);
 		}
-		return (URLClassLoader) ClassLoader.getSystemClassLoader();
 	}
 }
