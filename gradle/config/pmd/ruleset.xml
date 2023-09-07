@@ -21,6 +21,7 @@
         <exclude name="MethodArgumentCouldBeFinal"/>
         <exclude name="OnlyOneReturn"/>
         <exclude name="ShortClassName"/>
+        <exclude name="ShortMethodName"/>
         <exclude name="ShortVariable"/>
     </rule>
     <rule ref="category/java/design.xml">

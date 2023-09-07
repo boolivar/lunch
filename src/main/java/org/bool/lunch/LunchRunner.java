@@ -21,9 +21,6 @@ public class LunchRunner {
 	}
 	
 	private Runner lookupRunner(String type) {
-		if (type == null) {
-			type = RunnerType.JAVA.name();
-		}
-		return runnerFactory.create(type);
+		return runnerFactory.create(type != null ? type : RunnerType.JAVA.name());
 	}
 }
