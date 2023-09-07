@@ -2,7 +2,6 @@ package org.bool.lunch.scalecube;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
-import java.util.function.Function;
 
 import io.scalecube.services.ServiceReference;
 import io.scalecube.services.api.ServiceMessage;
