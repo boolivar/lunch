@@ -18,6 +18,7 @@ test {
 }
 
 jar {
+	dependsOn check
 	manifest {
 		attributes("Automatic-Module-Name": "org.bool.lunch.core")
 		attributes("Add-Opens": "java.base/jdk.internal.loader=org.bool.lunch.core")
