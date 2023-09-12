@@ -6,7 +6,6 @@ import org.bool.lunch.Lunched;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
@@ -27,7 +26,7 @@ public class LunchItemActor extends AbstractBehavior<Command> {
 		}
 	}
 	
-	public LunchItemActor(ActorContext<Command> context, Lunched lunched) {
+	public LunchItemActor(Lunched lunched) {
 		this.lunched = lunched;
 	}
 
@@ -39,11 +38,11 @@ public class LunchItemActor extends AbstractBehavior<Command> {
 				.build();
 	}
 	
-	private Behavior<Command> onStop(Stopped cmd) {
+	private Behavior<Command> onStop(Stopped ignored) {
 		return Behaviors.stopped();
 	}
 	
-	private Behavior<Command> onPostStop(PostStop signal) {
+	private Behavior<Command> onPostStop(PostStop ignored) {
 		if (lunched.getProcess().isAlive()) {
 			lunched.getProcess().destroy();
 		}

@@ -17,6 +17,6 @@ public class LunchItemActorFactory {
 
 	public LunchItemActor create(ActorContext<Command> context, LunchItem item) {
 		Lunched lunched = lunchBox.launch(item, (i, ec) -> context.getSelf().tell(new LunchItemActor.Stopped(ec)));
-		return new LunchItemActor(context, lunched);
+		return new LunchItemActor(lunched);
 	}
 }

@@ -1,6 +1,7 @@
 package org.bool.lunch.akka;
 
 import org.bool.lunch.Command;
+import org.bool.lunch.LunchItem;
 
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
@@ -13,35 +14,40 @@ public class ClusterGuardian {
 	}
 	
 	public static class StartProcess implements ClusterCommand {
+
+		private final LunchItem lunchItem;
+
+		public StartProcess(LunchItem lunchItem) {
+			this.lunchItem = lunchItem;
+		}
+
+		public LunchItem getLunchItem() {
+			return lunchItem;
+		}
 	}
 
-	private final String host;
-	
-	private final Integer port;
-	
 	private final Cluster cluster;
 
-	public ClusterGuardian(String host, Integer port, Cluster cluster) {
-		this.host = host;
-		this.port = port;
+	public ClusterGuardian(Cluster cluster) {
 		this.cluster = cluster;
 	}
-	
-	public void runNode() {
+
+	public void runNode(LunchItem lunchItem) {
+		cluster.start(lunchItem);
 	}
-	
+
 	public static ActorSystem<ClusterCommand> createActorSystem(String name, String host, Integer port) {
-		return ActorSystem.create(Behaviors.setup(context -> create(host, port, context)), name);
+		return ActorSystem.create(Behaviors.setup(context -> create(context)), name);
 	}
-	
-	private static Behavior<ClusterCommand> create(String host, Integer port, ActorContext<ClusterCommand> context) {
-		ClusterGuardian guardian = new ClusterGuardian(host, port, new ActorCluster(context));
+
+	private static Behavior<ClusterCommand> create(ActorContext<ClusterCommand> context) {
+		ClusterGuardian guardian = new ClusterGuardian(new ActorCluster(context));
 		return Behaviors.receive(ClusterCommand.class).onAnyMessage((ctx, message) -> dispatch(message, guardian)).build();
 	}
 
 	private static Behavior<ClusterCommand> dispatch(ClusterCommand message, ClusterGuardian guardian) {
 		if (message instanceof StartProcess) {
-			guardian.runNode();
+			guardian.runNode(((StartProcess) message).getLunchItem());
 		}
 		return Behaviors.same();
 	}
