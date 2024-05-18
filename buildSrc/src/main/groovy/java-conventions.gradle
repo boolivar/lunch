@@ -1,0 +1,67 @@
+plugins {
+	id "java"
+	id "jacoco"
+	id "pmd"
+	id "checkstyle"
+	id "com.github.spotbugs"
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+	withSourcesJar()
+}
+
+test {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	reports {
+		xml.required = true
+	}
+}
+
+jacocoTestCoverageVerification {
+	dependsOn test
+	violationRules {
+		rule {
+			limit {
+				minimum = jacocoMinRatio as BigDecimal
+			}
+		}
+	}
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+jar.dependsOn check
+
+checkstyle {
+	configDirectory = file("$rootDir/gradle/config/checkstyle")
+	toolVersion = "10.16.0"
+}
+
+pmd {
+	consoleOutput = true
+	toolVersion = "7.1.0"
+	ruleSets = ["ruleset.xml"]
+}
+
+tasks.withType(Pmd).configureEach {
+	pmdClasspath += files("$rootDir/gradle/config/pmd")
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation platform(project(":lunch-platform"))
+
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter"
+	testImplementation "org.mockito:mockito-junit-jupiter"
+}
