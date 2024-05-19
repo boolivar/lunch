@@ -54,6 +54,10 @@ tasks.withType(Pmd).configureEach {
 	pmdClasspath += files("$rootDir/gradle/config/pmd")
 }
 
+spotbugs {
+	omitVisitors = ["FindReturnRef"]
+}
+
 repositories {
 	mavenCentral()
 }
