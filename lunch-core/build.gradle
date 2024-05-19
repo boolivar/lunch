@@ -2,12 +2,17 @@ plugins {
 	id "java-library-conventions"
 }
 
+ext.moduleName = "org.bool.lunch.core"
+
 jar {
-	dependsOn check
 	manifest {
-		attributes("Automatic-Module-Name": "org.bool.lunch.core")
-		attributes("Add-Opens": "java.base/jdk.internal.loader=org.bool.lunch.core")
+		attributes("Automatic-Module-Name": moduleName)
+		attributes("Add-Opens": "java.base/jdk.internal.loader=$moduleName")
 	}
+}
+
+test {
+	jvmArgs = ["--add-opens", "java.base/jdk.internal.loader=ALL-UNNAMED"]
 }
 
 dependencies {
