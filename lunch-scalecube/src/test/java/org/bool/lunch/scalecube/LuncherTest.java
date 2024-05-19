@@ -1,6 +1,8 @@
 package org.bool.lunch.scalecube;
 
 import org.apache.commons.lang3.mutable.MutableObject;
+import org.assertj.core.api.InstanceOfAssertFactories;
+
 import org.bool.lunch.LunchItem;
 import org.bool.lunch.LunchProcess;
 import org.bool.lunch.LunchRunner;
@@ -10,12 +12,11 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
 
 class LuncherTest {
-	
+
 	LunchRunner lunchRunner = mock(LunchRunner.class);
 	
 	LunchProcess process = mock(LunchProcess.class);
@@ -39,41 +40,50 @@ class LuncherTest {
 		
 		Lunched lunched = luncher.launch(lunchItem)
 			.blockLast();
-		
-		assertSame(process, lunched.getProcess());
+
+		assertThat(lunched)
+			.returns(process, Lunched::getProcess);
 	}
 
 	@Test
 	void testError() throws InterruptedException {
 		LunchItem lunchItem = new LunchItem("test");
-		
+		Lunched lunched = new Lunched(process, lunchItem);
+
 		given(process.waitFor())
 			.willReturn(10);
+		given(process.getPid())
+			.willReturn("pid-test");
 		given(lunchRunner.launch(lunchItem))
-			.willReturn(new Lunched(process, lunchItem));
+			.willReturn(lunched);
 
 		MutableObject<Lunched> lunchedResult = new MutableObject<>();
 		MutableObject<Throwable> lunchedError = new MutableObject<>();
-		
+
 		luncher.launch(lunchItem)
 			.subscribe(lunchedResult::setValue, lunchedError::setValue);
-		
-		assertSame(process, lunchedResult.getValue().getProcess());
-		assertEquals(10, ((ProcessTerminatedException) lunchedError.getValue()).getExitCode());
-		assertEquals("pid-test", ((ProcessTerminatedException) lunchedError.getValue()).getPid());
+
+		assertThat(lunchedResult.getValue())
+			.isSameAs(lunched);
+		assertThat(lunchedError.getValue())
+			.asInstanceOf(InstanceOfAssertFactories.type(ProcessTerminatedException.class))
+			.returns(10, ProcessTerminatedException::getExitCode)
+			.returns("pid-test", ProcessTerminatedException::getPid)
+			;
 	}
-	
+
 	@Test
 	void testColdPublish() {
 		LunchItem lunchItem = new LunchItem();
 		given(lunchRunner.launch(any()))
 			.willReturn(new Lunched(process, null));
-		
+
 		Flux<Lunched> flux = luncher.launch(lunchItem);
-		
-		assertEquals(1, flux.count().block());
-		assertEquals(1, flux.count().block());
-		
+		assertThat(flux.count().block())
+			.isEqualTo(1);
+		assertThat(flux.count().block())
+			.isEqualTo(1);
+
 		then(lunchRunner)
 			.should(times(2)).launch(lunchItem);
 	}
