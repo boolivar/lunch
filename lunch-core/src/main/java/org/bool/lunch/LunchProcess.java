@@ -9,22 +9,18 @@ public interface LunchProcess {
 	default boolean isAlive() {
 		return exitCode() == null;
 	}
-	
+
 	default Integer exitCode() {
-		try {
-			return waitFor(Duration.ZERO);
-		} catch (InterruptedException e) {
-			throw new RuntimeException("Unexpected exception", e);
-		}
+		return waitFor(Duration.ZERO);
 	}
-	
-	default Integer waitFor() throws InterruptedException {
+
+	default Integer waitFor() {
 		return waitFor(INFINITE_WAIT);
 	}
-	
+
 	String getPid();
-	
-	Integer waitFor(Duration duration) throws InterruptedException;
-	
+
+	Integer waitFor(Duration duration);
+
 	void destroy();
 }

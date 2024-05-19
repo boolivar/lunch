@@ -25,10 +25,7 @@ public class LunchBox {
 	public Lunched launch(LunchItem item, ObjIntConsumer<Lunched> onDestroy) {
 		Lunched lunched = lunchRunner.launch(item);
 		if (lunched.getProcess() != null) {
-			executorService.submit(() -> {
-				onDestroy.accept(lunched, lunched.getProcess().waitFor());
-				return lunched;
-			});
+			executorService.submit(() -> onDestroy.accept(lunched, lunched.getProcess().waitFor()));
 		}
 		return lunched;
 	}

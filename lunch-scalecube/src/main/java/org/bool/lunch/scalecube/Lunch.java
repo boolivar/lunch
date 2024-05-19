@@ -108,7 +108,7 @@ public class Lunch {
 		
 		Lunch lunch = new Lunch(lunchService, gatewayPort, seed, serviceRegistry);
 		
-		Microservices microservices = lunch.launch().block();
+		Microservices microservices = lunch.launch().blockOptional().orElseThrow();
 		
 		log.info("Service discovery: {}", microservices.discoveryAddress());
 		

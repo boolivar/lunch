@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 public class LocalPad implements LaunchPad {
 
@@ -22,12 +21,12 @@ public class LocalPad implements LaunchPad {
 	public void launch(Lunch lunch) {
 		List<Process> processes = new ArrayList<>();
 		try {
-			BlockingQueue<Lunched> queue = new LinkedBlockingQueue<>();
+			CountDownLatch latch = new CountDownLatch(lunch.getItems().size());
 			for (LunchItem item : lunch.getItems()) {
-				Lunched lunched = lunchBox.launch(item, (what, exitCode) -> queue.offer(what));
+				Lunched lunched = lunchBox.launch(item, (what, exitCode) -> latch.countDown());
 				log.info("Process {} for {} started", lunched.getProcess(), lunched.getLunchItem());
 			}
-			queue.take();
+			latch.await();
 		} catch (Exception e) {
 			log.error("Lunch terminated", e);
 		} finally {

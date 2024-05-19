@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.bool.lunch.LunchProcess;
 
 import net.schmizz.sshj.connection.channel.direct.Session.Command;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class SshjProcess implements LunchProcess {
 
@@ -29,7 +30,7 @@ public class SshjProcess implements LunchProcess {
 	}
 
 	@Override
-	public Integer waitFor(Duration duration) throws InterruptedException {
+	public Integer waitFor(Duration duration) {
 		try {
 			if (duration == INFINITE_WAIT) {
 				cmd.join();
@@ -38,7 +39,7 @@ public class SshjProcess implements LunchProcess {
 			}
 			return cmd.getExitStatus();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw ExceptionUtils.asRuntimeException(e);
 		}
 	}
 

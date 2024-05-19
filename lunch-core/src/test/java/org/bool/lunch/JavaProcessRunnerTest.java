@@ -76,7 +76,7 @@ public class JavaProcessRunnerTest {
 		}
 
 		@Override
-		public Integer waitFor(Duration duration) throws InterruptedException {
+		public Integer waitFor(Duration duration) {
 			return null;
 		}
 

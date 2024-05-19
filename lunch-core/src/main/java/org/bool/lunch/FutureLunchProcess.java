@@ -1,10 +1,10 @@
 package org.bool.lunch;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import java.time.Duration;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class FutureLunchProcess implements LunchProcess {
 
@@ -23,16 +23,14 @@ public class FutureLunchProcess implements LunchProcess {
 	}
 
 	@Override
-	public Integer waitFor(Duration duration) throws InterruptedException {
+	public Integer waitFor(Duration duration) {
 		try {
 			if (duration == null) {
 				return future.get();
 			}
 			return future.get(duration.toMillis(), TimeUnit.MILLISECONDS);
-		} catch (TimeoutException e) {
-			return null;
-		} catch (ExecutionException e) {
-			return -1;
+		} catch (Exception e) {
+			throw ExceptionUtils.asRuntimeException(e);
 		}
 	}
 
