@@ -42,7 +42,8 @@ public class ClusterGuardian {
 
 	private static Behavior<ClusterCommand> create(ActorContext<ClusterCommand> context) {
 		ClusterGuardian guardian = new ClusterGuardian(new ActorCluster(context));
-		return Behaviors.receive(ClusterCommand.class).onAnyMessage((ctx, message) -> dispatch(message, guardian)).build();
+		return Behaviors.receive(ClusterCommand.class)
+				.onAnyMessage(message -> dispatch(message, guardian)).build();
 	}
 
 	private static Behavior<ClusterCommand> dispatch(ClusterCommand message, ClusterGuardian guardian) {

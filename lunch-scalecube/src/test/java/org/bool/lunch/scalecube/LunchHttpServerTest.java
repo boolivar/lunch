@@ -48,7 +48,7 @@ class LunchHttpServerTest implements BiFunction<HttpServerRequest, HttpServerRes
 	public Publisher<Void> apply(HttpServerRequest request, HttpServerResponse response) {
 		return request.receive().aggregate()
 				.map(bb -> bb.toString(StandardCharsets.UTF_8)).doOnNext(consumer)
-				.thenReturn("out").compose(response::sendString);
+				.thenReturn("out").doOnNext(response::sendObject).then();
 	}
 	
 	@Test

@@ -12,12 +12,13 @@ dependencies {
 	api platform("org.junit:junit-bom:5.10.2")
 	api platform("org.slf4j:slf4j-bom:2.0.13")
 	constraints {
-		api "io.scalecube:scalecube-services-bytebuf-codec:2.10.25"
-		api "io.scalecube:scalecube-services-gateway-netty:2.10.17"
 		api "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
+		api "com.fasterxml.jackson.core:jackson-databind:2.17.1"
 		api "com.hierynomus:sshj:0.29.0"
 		api "com.lightbend.akka.management:akka-management-cluster-http_$scalaVersion:1.4.1"
 		api "commons-io:commons-io:2.16.1"
+		api "io.scalecube:scalecube-services-bytebuf-codec:2.10.25"
+		api "io.scalecube:scalecube-services-gateway-netty:2.10.17"
 		api "org.apache.commons:commons-lang3:3.14.0"
 		api "org.assertj:assertj-core:3.25.3"
 		api "org.mockito:mockito-junit-jupiter:5.10.0"

@@ -30,6 +30,7 @@ public class LunchActor extends AbstractBehavior<Command> {
 	private final LunchItemActorFactory actorFactory;
 	
 	public LunchActor(ActorContext<Command> context, LunchItemActorFactory actorFactory) {
+		super(context);
 		this.context = context;
 		this.actorFactory = actorFactory;
 	}

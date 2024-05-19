@@ -1,0 +1,24 @@
+plugins {
+	id "java-library-conventions"
+}
+
+jar {
+	manifest {
+		attributes("Automatic-Module-Name": "org.bool.lunch.core")
+		attributes("Add-Opens": "java.base/jdk.internal.loader=org.bool.lunch.core")
+	}
+}
+
+dependencies {
+	implementation project(":lunch-core")
+	implementation "com.fasterxml.jackson.core:jackson-databind"
+	implementation "com.lightbend.akka.management:akka-management-cluster-http_$scalaVersion"
+	implementation "com.typesafe.akka:akka-cluster-typed_$scalaVersion"
+	implementation "commons-io:commons-io"
+	implementation "org.apache.commons:commons-lang3"
+	implementation "org.slf4j:slf4j-api"
+
+	runtimeOnly "ch.qos.logback:logback-classic"
+	runtimeOnly "com.typesafe.akka:akka-slf4j_$scalaVersion"
+	runtimeOnly "org.slf4j:log4j-over-slf4j"
+}

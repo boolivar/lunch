@@ -1,11 +1,13 @@
-package org.bool.lunch;
+package org.bool.lunch.akka;
+
+import org.bool.lunch.DefaultRunnerFactory;
+import org.bool.lunch.Lunch;
+import org.bool.lunch.LunchBox;
+import org.bool.lunch.LunchRunner;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.bool.lunch.akka.AkkaPad;
-import org.bool.lunch.akka.LunchItemActorFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -30,7 +32,7 @@ public class Main {
 		DefaultRunnerFactory runnerFactory = new DefaultRunnerFactory();
 		LunchRunner runner = new LunchRunner(runnerFactory);
 		LunchBox lunchBox = new LunchBox(runner);
-		LaunchPad lunchPad = new AkkaPad(new LunchItemActorFactory(lunchBox));
+		AkkaPad lunchPad = new AkkaPad(new LunchItemActorFactory(lunchBox));
 		lunchPad.launch(lunch);
 	}
 	

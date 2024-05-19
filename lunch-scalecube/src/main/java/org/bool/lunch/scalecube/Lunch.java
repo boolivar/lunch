@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.concurrent.Executors;
 
 import io.scalecube.cluster.membership.MembershipConfig;
 import io.scalecube.net.Address;
@@ -76,7 +77,7 @@ public class Lunch {
 	}
 
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {
-		return new ScalecubeServiceDiscovery(endpoint)
+		return new ScalecubeServiceDiscovery()
 				.options(clusterConfig -> clusterConfig.membership(this::membership))
 				;
 	}
@@ -91,7 +92,7 @@ public class Lunch {
 	public static void main(String[] args) {
 		CachedRunnerFactory factory = new CachedRunnerFactory(new DefaultRunnerFactory());
 		LunchRunner runner = new LunchRunner(factory);
-		Luncher luncher = new Luncher(runner, Schedulers.newElastic("local-lunch"));
+		Luncher luncher = new Luncher(runner, Schedulers.fromExecutorService(Executors.newCachedThreadPool(), "local-lunch"));
 		LocalLunchService lunchService = new LocalLunchService(luncher);
 		
 		int gatewayPort = args.length > 0 ? Integer.parseInt(args[0]) : 0;
@@ -109,11 +110,11 @@ public class Lunch {
 		
 		Microservices microservices = lunch.launch().block();
 		
-		log.info("Service discovery: {}", microservices.discovery().address());
+		log.info("Service discovery: {}", microservices.discoveryAddress());
 		
-		serviceRegistry.registerService(microservices.discovery().serviceEndpoint());
+		serviceRegistry.registerService(microservices.serviceEndpoint());
 		
-		microservices.discovery().listenDiscovery().subscribe(event -> handleClusterEvent(microservices, event));
+		microservices.listenDiscovery().subscribe(event -> handleClusterEvent(microservices, event));
 		
 		microservices.onShutdown().block();
 	}

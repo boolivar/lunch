@@ -50,7 +50,7 @@ public class LunchMessageProcessor implements Function<ServiceMessage, Mono<Serv
 	}
 	
 	private Mono<?> requestPart(ServiceReference ref, ServiceMessage message) {
-		return serviceCall.requestOne(message, Object.class, ref.address())
+		return serviceCall.requestOne(message)
 				.map(ServiceMessage::data)
 				.onErrorResume(t -> Mono.just(t.getMessage()))
 				.map(data -> new NodeInfo(ref.endpointId(), ref.address().toString(), ref.tags(), data))

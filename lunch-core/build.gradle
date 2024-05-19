@@ -11,30 +11,10 @@ jar {
 }
 
 dependencies {
-	implementation platform(project(":lunch-platform"))
-	implementation "org.apache.commons:commons-lang3"
-	implementation "org.slf4j:slf4j-api"
-	implementation "com.esotericsoftware.yamlbeans:yamlbeans"
+	api "org.slf4j:slf4j-api"
+	api "com.esotericsoftware.yamlbeans:yamlbeans"
+
 	implementation "com.hierynomus:sshj"
-	implementation "com.lightbend.akka.management:akka-management-cluster-http_$scalaVersion"
-	implementation "com.typesafe.akka:akka-cluster-typed_$scalaVersion"
-	
-	implementation "io.scalecube:scalecube-services"
-	implementation "io.scalecube:scalecube-services-bytebuf-codec"
-	implementation "io.scalecube:scalecube-services-gateway-netty"
-	implementation "io.scalecube:scalecube-services-discovery"
-	implementation "io.scalecube:scalecube-services-transport-jackson"
-	implementation "io.scalecube:scalecube-services-transport-rsocket"
 	implementation "commons-io:commons-io"
-
-	runtimeOnly "com.typesafe.akka:akka-slf4j_$scalaVersion"
-	runtimeOnly "org.slf4j:log4j-over-slf4j"
-
-	runtimeOnly ("org.apache.kafka:kafka_$scalaVersion:1.1.0") {
-		exclude group: "org.slf4j", module: "slf4j-log4j12"
-	}
-	runtimeOnly ("org.apache.zookeeper:zookeeper:3.4.10") {
-		exclude group: "org.slf4j", module: "slf4j-log4j12"
-		exclude group: "log4j", module: "log4j"
-	}
+	implementation "org.apache.commons:commons-lang3"
 }
