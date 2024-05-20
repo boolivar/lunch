@@ -7,8 +7,9 @@ javaPlatform {
 }
 
 dependencies {
-	api platform("com.typesafe.akka:akka-bom_$scalaVersion:2.8.5")
+	api platform("io.projectreactor:reactor-bom:2020.0.44")
 	api platform("io.scalecube:scalecube-bom:0.0.9")
+	api platform("com.typesafe.akka:akka-bom_$scalaVersion:2.8.5")
 	api platform("org.junit:junit-bom:5.10.2")
 	api platform("org.slf4j:slf4j-bom:2.0.13")
 	constraints {

@@ -18,6 +18,7 @@ test {
 
 dependencies {
 	api "com.esotericsoftware.yamlbeans:yamlbeans"
+	api "io.projectreactor:reactor-core"
 	api "org.slf4j:slf4j-api"
 
 	implementation "com.hierynomus:sshj"
