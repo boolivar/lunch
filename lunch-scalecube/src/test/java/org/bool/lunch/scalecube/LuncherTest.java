@@ -17,11 +17,11 @@ import static org.mockito.BDDMockito.*;
 
 class LuncherTest {
 
-	LunchRunner lunchRunner = mock(LunchRunner.class);
-	
-	LunchProcess process = mock(LunchProcess.class);
-	
-	Luncher luncher = new Luncher(lunchRunner, Schedulers.immediate());
+	private final LunchRunner lunchRunner = mock(LunchRunner.class);
+
+	private final LunchProcess process = mock(LunchProcess.class);
+
+	private final Luncher luncher = new Luncher(lunchRunner, Schedulers.immediate());
 
 	@Test
 	void testLaunch() {
@@ -33,7 +33,7 @@ class LuncherTest {
 
 	@Test
 	void testComplete() {
-		LunchItem lunchItem = new LunchItem("test");
+		LunchItem lunchItem = new LunchItem();
 
 		given(lunchRunner.launch(lunchItem))
 			.willReturn(new Lunched(process, lunchItem));
@@ -47,7 +47,7 @@ class LuncherTest {
 
 	@Test
 	void testError() throws InterruptedException {
-		LunchItem lunchItem = new LunchItem("test");
+		LunchItem lunchItem = new LunchItem();
 		Lunched lunched = new Lunched(process, lunchItem);
 
 		given(process.waitFor())
@@ -75,7 +75,7 @@ class LuncherTest {
 	@Test
 	void testColdPublish() {
 		LunchItem lunchItem = new LunchItem();
-		given(lunchRunner.launch(any()))
+		given(lunchRunner.launch(lunchItem))
 			.willReturn(new Lunched(process, null));
 
 		Flux<Lunched> flux = luncher.launch(lunchItem);

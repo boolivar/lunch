@@ -1,5 +1,6 @@
 plugins {
 	id "java-library-conventions"
+	id "io.freefair.lombok"
 }
 
 ext.moduleName = "org.bool.lunch.core"
@@ -16,8 +17,8 @@ test {
 }
 
 dependencies {
-	api "org.slf4j:slf4j-api"
 	api "com.esotericsoftware.yamlbeans:yamlbeans"
+	api "org.slf4j:slf4j-api"
 
 	implementation "com.hierynomus:sshj"
 	implementation "commons-io:commons-io"
