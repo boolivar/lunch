@@ -1,6 +1,5 @@
 package org.bool.lunch.akka;
 
-import org.bool.lunch.Command;
 import org.bool.lunch.LunchBox;
 import org.bool.lunch.LunchItem;
 import org.bool.lunch.Lunched;
