@@ -1,7 +1,7 @@
 package org.bool.lunch.scalecube;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.bool.lunch.scalecube.gateway.LunchHttpServer;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,22 +23,20 @@ import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.server.HttpServerRequest;
 import reactor.netty.http.server.HttpServerResponse;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
 class LunchHttpServerTest implements BiFunction<HttpServerRequest, HttpServerResponse, Publisher<Void>> {
-	
+
 	@Mock
-	Consumer<String> consumer;
-	
-	int port = RandomUtils.nextInt(49152, 65535);
-	
-	HttpClient client = HttpClient.create().port(port);
-	
-	DisposableServer server = new LunchHttpServer("localhost", port, this).bind().block();
-	
+	private Consumer<String> consumer;
+
+	private final DisposableServer server = new LunchHttpServer("localhost", 0, this).bind().blockOptional().orElseThrow();
+
+	private final HttpClient client = HttpClient.create().port(server.port());
+
 	@AfterAll
 	void shutdownServer() {
 		server.dispose();
@@ -47,25 +45,23 @@ class LunchHttpServerTest implements BiFunction<HttpServerRequest, HttpServerRes
 	@Override
 	public Publisher<Void> apply(HttpServerRequest request, HttpServerResponse response) {
 		return request.receive().aggregate()
-				.map(bb -> bb.toString(StandardCharsets.UTF_8)).doOnNext(consumer)
-				.thenReturn("out").doOnNext(response::sendObject).then();
+			.asString(StandardCharsets.UTF_8)
+			.doOnNext(consumer)
+			.thenReturn("out")
+			.transform(response::sendString)
+			.then();
 	}
-	
+
 	@Test
 	void testRequest() {
 		String response = client.post()
 			.send(Mono.just(Unpooled.copiedBuffer("in", StandardCharsets.UTF_8)))
-			.response((rsp, byteBuf) -> {
-				assertEquals(HttpResponseStatus.OK, rsp.status());
-				return byteBuf;
-			})
-			.map(bb -> bb.retain())
-			.reduce(Unpooled::wrappedBuffer)
-			.map(bb -> bb.toString(StandardCharsets.UTF_8))
+			.responseSingle((rsp, bb) -> rsp.status() == HttpResponseStatus.OK ? bb.asString() : Mono.error(new IllegalStateException("Response status: " + rsp.status())))
 			.block();
-		
-		assertEquals("out", response);
+
+		assertThat(response)
+			.isEqualTo("out");
 		then(consumer)
-				.should().accept("in");
+			.should().accept("in");
 	}
 }
