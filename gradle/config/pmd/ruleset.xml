@@ -40,6 +40,11 @@
     <rule ref="category/java/performance.xml">
     </rule>
 
+    <rule ref="category/java/bestpractices.xml/JUnitTestsShouldIncludeAssert">
+        <properties>
+            <property name="extraAssertMethodNames" value="verify,then"/>
+        </properties>
+    </rule>
     <rule ref="category/java/codestyle.xml/UseUnderscoresInNumericLiterals">
         <properties>
             <property name="acceptableDecimalLength" value="6"/>
