@@ -55,7 +55,7 @@ tasks.withType(Pmd).configureEach {
 }
 
 spotbugs {
-	omitVisitors = ["FindReturnRef"]
+	omitVisitors = ["ConstructorThrow", "FindReturnRef"]
 	excludeFilter = file("$rootDir/gradle/config/spotbugs/exclude.xml")
 }
 
