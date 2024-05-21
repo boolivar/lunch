@@ -5,9 +5,8 @@ plugins {
 dependencies {
 	implementation project(":lunch-core")
 	implementation "commons-io:commons-io"
-	implementation "io.scalecube:scalecube-services-bytebuf-codec"
 	implementation "io.scalecube:scalecube-services-discovery"
-	implementation "io.scalecube:scalecube-services-gateway-netty"
+	implementation "io.scalecube:scalecube-services-gateway"
 	implementation "io.scalecube:scalecube-services-transport-jackson"
 	implementation "io.scalecube:scalecube-services-transport-rsocket"
 	implementation "io.scalecube:scalecube-services"

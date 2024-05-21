@@ -18,8 +18,6 @@ dependencies {
 		api "com.hierynomus:sshj:0.29.0"
 		api "com.lightbend.akka.management:akka-management-cluster-http_$scalaVersion:1.4.1"
 		api "commons-io:commons-io:2.16.1"
-		api "io.scalecube:scalecube-services-bytebuf-codec:2.10.25"
-		api "io.scalecube:scalecube-services-gateway-netty:2.10.17"
 		api "org.apache.commons:commons-lang3:3.14.0"
 		api "org.assertj:assertj-core:3.25.3"
 		api "org.mockito:mockito-junit-jupiter:5.10.0"
