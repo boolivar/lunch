@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JavaProcessRunnerTest {
+class JavaProcessRunnerTest {
 
 	private static final String JAVA_BIN = "/bin/java/exe";
 	
@@ -21,10 +21,10 @@ public class JavaProcessRunnerTest {
 	private final JavaProcessRunner jpr = new JavaProcessRunner(new TestProcessRunner(), JAVA_BIN, CLASSPATH);
 	
 	@Test
-	public void testSingleCommand() {
-		TestProcess process = (TestProcess) jpr.run("java.util.List", Collections.emptyList());
+	void testSingleCommand() {
+		var process = (TestProcess) jpr.run("java.util.List", Collections.emptyList());
 		assertEquals(JAVA_BIN, process.getCommand());
-		ArrayDeque<String> args = new ArrayDeque<>(process.getArgs());
+		var args = new ArrayDeque<>(process.getArgs());
 		assertEquals("-cp", args.pop());
 		assertEquals(CLASSPATH, args.pop());
 		assertEquals("java.util.List", args.pop());
@@ -32,10 +32,10 @@ public class JavaProcessRunnerTest {
 	}
 	
 	@Test
-	public void testRunner() {
-		TestProcess process = (TestProcess) jpr.run("java.util.List -version", JAVA_ARGS);
+	void testRunner() {
+		var process = (TestProcess) jpr.run("java.util.List -version", JAVA_ARGS);
 		assertEquals(JAVA_BIN, process.getCommand());
-		ArrayDeque<String> args = new ArrayDeque<>(process.getArgs());
+		var args = new ArrayDeque<>(process.getArgs());
 		assertEquals(JAVA_ARGS.get(0), args.pop());
 		assertEquals("-cp", args.pop());
 		assertEquals(CLASSPATH, args.pop());
@@ -43,14 +43,14 @@ public class JavaProcessRunnerTest {
 		assertEquals("-version", args.pop());
 		assertTrue(args.isEmpty());
 	}
-	
-	private static class TestProcessRunner implements Runner {
+
+	static class TestProcessRunner implements Runner {
 		@Override
 		public LunchProcess run(String command, Collection<String> args) {
 			return new TestProcess(command, args);
 		}
 	}
-	
+
 	static class TestProcess implements LunchProcess {
 		
 		private final String command;

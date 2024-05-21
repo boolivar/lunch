@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class DefaultRunnerFactoryTest {
 
-	private DefaultRunnerFactory factory = new DefaultRunnerFactory();
+	private final DefaultRunnerFactory factory = new DefaultRunnerFactory();
 
 	@Test
 	void testJavaRunner() {

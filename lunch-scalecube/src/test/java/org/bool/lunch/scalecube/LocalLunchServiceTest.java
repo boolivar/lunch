@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class LocalLunchServiceTest {
+class LocalLunchServiceTest {
 
 	@Mock
 	private Supplier<Lunched> supplier;

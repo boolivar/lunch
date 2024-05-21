@@ -25,7 +25,7 @@ public class JavaProcessRunner implements Runner {
 
 	@Override
 	public LunchProcess run(String command, Collection<String> javaArgs) {
-		ArrayList<String> commandArgs = new ArrayList<>();
+		var commandArgs = new ArrayList<String>();
 		commandArgs.addAll(javaArgs);
 		commandArgs.add("-cp");
 		commandArgs.add(classPath);

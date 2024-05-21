@@ -36,7 +36,7 @@ public class ClusterGuardian {
 	}
 
 	public static ActorSystem<ClusterCommand> createActorSystem(String name, String host, Integer port) {
-		return ActorSystem.create(Behaviors.setup(context -> create(context)), name);
+		return ActorSystem.create(Behaviors.setup(ClusterGuardian::create), name);
 	}
 
 	private static Behavior<ClusterCommand> create(ActorContext<ClusterCommand> context) {

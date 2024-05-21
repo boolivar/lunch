@@ -32,7 +32,7 @@ public class ProcessRunner implements Runner {
 	
 	@Override
 	public NativeLunchProcess run(String command, Collection<String> args) {
-		ArrayList<String> commandArgs = new ArrayList<>();
+		var commandArgs = new ArrayList<String>();
 		commandArgs.add(command);
 		commandArgs.addAll(args);
 		Process process = run(commandArgs);

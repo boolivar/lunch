@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -47,15 +48,14 @@ public class SshjRunner implements Runner {
 			throw new RuntimeException("Error start command " + args, e);
 		}
 	}
-	
+
 	private void startSshjProcess(String host, Collection<String> args, CompletableFuture<Command> result) { 
 		try (SSHClient client = new SSHClient(sshjConfig)) {
 			client.connect(host);
 			try (Session session = client.startSession(); Command cmd = session.exec(StringUtils.join(args, ' '))) {
 				result.complete(cmd);
 				try (BufferedReader reader = new BufferedReader(new InputStreamReader(cmd.getInputStream(), StandardCharsets.UTF_8))) {
-					String line;
-					while ((line = reader.readLine()) != null) {
+					for (var line = reader.readLine(); line != null; line = reader.readLine()) {
 						log.info("SSH process {}/{}: {}", cmd.getID(), cmd.getRecipient(), line);
 					}
 					log.info("SSH process {}/{} complete", cmd.getID(), cmd.getRecipient());
@@ -63,7 +63,7 @@ public class SshjRunner implements Runner {
 					log.error("SSH process {}/{} error", cmd.getID(), cmd.getRecipient(), e);
 				}
 			}
-		} catch (Throwable e) {
+		} catch (IOException e) {
 			result.completeExceptionally(e);
 		}
 	}

@@ -28,6 +28,7 @@ import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+@SuppressWarnings("PMD")
 public class Lunch {
 	
 	private static final Logger log = LoggerFactory.getLogger(Lunch.class);
@@ -108,15 +109,12 @@ public class Lunch {
 		
 		Lunch lunch = new Lunch(lunchService, gatewayPort, seed, serviceRegistry);
 		
-		Microservices microservices = lunch.launch().blockOptional().orElseThrow();
-		
-		log.info("Service discovery: {}", microservices.discoveryAddress());
-		
-		serviceRegistry.registerService(microservices.serviceEndpoint());
-		
-		microservices.listenDiscovery().subscribe(event -> handleClusterEvent(microservices, event));
-		
-		microservices.onShutdown().block();
+		try (Microservices microservices = lunch.launch().blockOptional().orElseThrow()) {
+			log.info("Service discovery: {}", microservices.discoveryAddress());
+			serviceRegistry.registerService(microservices.serviceEndpoint());
+			microservices.listenDiscovery().subscribe(event -> handleClusterEvent(microservices, event));
+			microservices.onShutdown().block();
+		}
 	}
 	
 	private static void handleClusterEvent(Microservices microservices, ServiceDiscoveryEvent event) {

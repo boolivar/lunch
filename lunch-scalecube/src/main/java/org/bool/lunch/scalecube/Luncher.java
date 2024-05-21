@@ -32,10 +32,11 @@ public class Luncher {
 			sink.next(lunch);
 
 			int exitCode = lunch.getProcess().waitFor();
-			if (exitCode != 0) {
-				throw new ProcessTerminatedException(lunch.getProcess().getPid(), exitCode);
+			if (exitCode == 0) {
+				sink.complete();
+			} else {
+				sink.error(new ProcessTerminatedException(lunch.getProcess().getPid(), exitCode));
 			}
-			sink.complete();
 		} catch (Exception e) {
 			sink.error(e);
 		}
