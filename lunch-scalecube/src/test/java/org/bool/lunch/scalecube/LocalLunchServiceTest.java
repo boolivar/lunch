@@ -37,7 +37,7 @@ class LocalLunchServiceTest {
 
 	@Test
 	void testCache(@Mock LunchProcess process) {
-		var item = new LunchItem("test-cmd", "test", "cmd", List.of());
+		var item = LunchItem.builder().name("test-cmd").type("test").command("cmd").args(List.of()).build();
 		var lunched = new Lunched(process, item);
 
 		given(supplier.get())

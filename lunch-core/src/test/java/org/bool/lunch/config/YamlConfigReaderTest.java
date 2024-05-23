@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,8 +22,18 @@ class YamlConfigReaderTest {
 			args:
 			- 0
 			- zero
+			env:
+			  A: 0
+			  B: value
 			""";
+		var expectedValue = LunchItem.builder()
+				.name("test")
+				.command("echo")
+				.args(List.of("0", "zero"))
+				.env(Map.of("A", "0", "B", "value"))
+				.build();
+
 		assertThat(yamlReader.read(() -> new StringReader(yaml), LunchItem.class).block())
-			.isEqualTo(new LunchItem("test", null, "echo", List.of("0", "zero")));
+			.isEqualTo(expectedValue);
 	}
 }

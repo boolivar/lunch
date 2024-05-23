@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @Data
@@ -21,4 +23,9 @@ public class LunchItem {
 
 	private List<String> args;
 
+	private Map<String, String> env;
+
+	private File workDir;
+
+	private File logFile;
 }
