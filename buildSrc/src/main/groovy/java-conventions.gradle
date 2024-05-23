@@ -13,15 +13,12 @@ java {
 	withSourcesJar()
 }
 
-test {
-	useJUnitPlatform()
-	finalizedBy jacocoTestReport
+jar {
+	dependsOn check
 }
 
-jacocoTestReport {
-	reports {
-		xml.required = true
-	}
+check {
+	dependsOn jacocoTestCoverageVerification
 }
 
 jacocoTestCoverageVerification {
@@ -35,9 +32,16 @@ jacocoTestCoverageVerification {
 	}
 }
 
-check.dependsOn jacocoTestCoverageVerification
+test {
+	finalizedBy jacocoTestReport
+	useJUnitPlatform()
+}
 
-jar.dependsOn check
+jacocoTestReport {
+	reports {
+		xml.required = true
+	}
+}
 
 checkstyle {
 	configDirectory = file("$rootDir/gradle/config/checkstyle")
@@ -69,6 +73,4 @@ dependencies {
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter"
 	testImplementation "org.mockito:mockito-junit-jupiter"
-
-	testRuntimeOnly "ch.qos.logback:logback-classic"
 }
