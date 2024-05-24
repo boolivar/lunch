@@ -2,6 +2,8 @@ package org.bool.lunch.api;
 
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 public interface LunchedItem {
 
 	String getName();
@@ -18,5 +20,10 @@ public interface LunchedItem {
 
 	default Object getInfo() {
 		return getName() + ": " + getPid();
+	}
+
+	default Mono<Void> terminate(Duration timeout) {
+		return terminate(false)
+			.timeout(timeout).onErrorResume(e -> Mono.just(e).log().and(terminate(true)));
 	}
 }
