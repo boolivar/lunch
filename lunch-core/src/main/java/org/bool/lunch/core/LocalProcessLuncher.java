@@ -13,6 +13,10 @@ public class LocalProcessLuncher implements Luncher {
 
 	private final ProcessBuilderMapper mapper;
 
+	public LocalProcessLuncher() {
+		this(new ProcessBuilderMapper());
+	}
+
 	@Override
 	public Mono<LocalProcessLunched> launch(LunchItem item) {
 		return Mono.just(item)
