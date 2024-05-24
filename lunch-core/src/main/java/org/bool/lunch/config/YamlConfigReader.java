@@ -14,7 +14,7 @@ public class YamlConfigReader {
 	private YamlConfig config;
 
 	public YamlConfigReader() {
-		this(new YamlConfig());
+		this(defaultYamlConfig());
 	}
 
 	public <T> Mono<T> read(Callable<Reader> source, Class<T> type) {
@@ -23,5 +23,11 @@ public class YamlConfigReader {
 				return new YamlReader(reader, config).read(type);
 			}
 		});
+	}
+
+	private static YamlConfig defaultYamlConfig() {
+		var config = new YamlConfig();
+		config.setAllowDuplicates(false);
+		return config;
 	}
 }
