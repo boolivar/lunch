@@ -1,30 +1,20 @@
 package org.bool.lunch.scalecube;
 
-import org.bool.lunch.LunchItem;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
+@Data
+@Builder
+@AllArgsConstructor
 public class LunchInfo {
 
 	private final String pid;
-	
+
+	private final String name;
+
+	private final Object details;
+
 	private final Integer exitCode;
-	
-	private final LunchItem lunchItem;
-	
-	public LunchInfo(String pid, Integer exitCode, LunchItem lunchItem) {
-		this.pid = pid;
-		this.exitCode = exitCode;
-		this.lunchItem = lunchItem;
-	}
 
-	public String getPid() {
-		return pid;
-	}
-	
-	public Integer getExitCode() {
-		return exitCode;
-	}
-
-	public LunchItem getLunchItem() {
-		return lunchItem;
-	}
 }

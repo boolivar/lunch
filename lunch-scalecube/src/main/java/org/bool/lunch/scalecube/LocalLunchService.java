@@ -1,57 +1,58 @@
 package org.bool.lunch.scalecube;
 
 import org.bool.lunch.LunchItem;
-import org.bool.lunch.Lunched;
+import org.bool.lunch.api.LunchedItem;
+import org.bool.lunch.api.Luncher;
 
+import lombok.AllArgsConstructor;
+
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@AllArgsConstructor
 public class LocalLunchService implements LunchService {
 
 	private final Luncher luncher;
 
-	private final Map<String, Lunched> lunchedMap;
+	private final Map<String, LunchedItem> lunchedMap;
 	
 	public LocalLunchService(Luncher luncher) {
 		this(luncher, new ConcurrentHashMap<>());
-	}
-	
-	public LocalLunchService(Luncher luncher, Map<String, Lunched> lunchedMap) {
-		this.luncher = luncher;
-		this.lunchedMap = lunchedMap;
 	}
 
 	@Override
 	public Flux<LunchInfo> launch(LunchItem item) {
 		return luncher.launch(item)
-				.doOnNext(lunched -> lunchedMap.put(lunched.getProcess().getPid(), lunched))
-				.map(this::buildInfo)
-				.cache()
+				.doOnNext(lunched -> lunchedMap.put(lunched.getPid(), lunched))
+				.flatMap(this::buildInfo)
+				.flux()
 				;
 	}
 
 	@Override
 	public Mono<LunchInfo> land(String uid) {
 		return Mono.justOrEmpty(lunchedMap.get(uid))
-				.doOnNext(lunched -> lunched.getProcess().destroy())
-				.map(this::buildInfo)
+				.doOnNext(lunched -> lunched.terminate(Duration.ofSeconds(5)))
+				.flatMap(this::buildInfo)
 				;
 	}
 
 	@Override
 	public Mono<List<LunchInfo>> stats() {
-		return Mono.just(lunchedMap.values())
-				.map(values -> values.stream().map(this::buildInfo).collect(Collectors.toList()))
-				.cache()
+		return Flux.fromIterable(lunchedMap.values())
+				.flatMap(this::buildInfo)
+				.collectList()
 				;
 	}
 
-	private LunchInfo buildInfo(Lunched lunched) {
-		return new LunchInfo(lunched.getProcess().getPid(), lunched.getProcess().exitCode(), lunched.getLunchItem());
+	private Mono<LunchInfo> buildInfo(LunchedItem lunched) {
+		return lunched.isAlive()
+				? Mono.just(new LunchInfo(lunched.getPid(), lunched.getName(), lunched.getInfo(), null))
+				: lunched.exitCode().map(ec -> new LunchInfo(lunched.getPid(), lunched.getName(), lunched.getInfo(), ec));
 	}
 }

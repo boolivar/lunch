@@ -1,17 +1,10 @@
 package org.bool.lunch.scalecube;
 
-import org.bool.lunch.CachedRunnerFactory;
-import org.bool.lunch.DefaultRunnerFactory;
-import org.bool.lunch.LunchRunner;
+import org.bool.lunch.core.LocalProcessLuncher;
 import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
 import org.bool.lunch.scalecube.gateway.LunchHttpHandler;
 import org.bool.lunch.scalecube.gateway.LunchHttpServer;
 import org.bool.lunch.scalecube.gateway.LunchMessageProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.concurrent.Executors;
 
 import io.scalecube.cluster.membership.MembershipConfig;
 import io.scalecube.net.Address;
@@ -25,8 +18,11 @@ import io.scalecube.services.gateway.GatewayOptions;
 import io.scalecube.services.registry.api.ServiceRegistry;
 import io.scalecube.services.transport.api.DataCodec;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+
+import java.util.Collections;
 
 @SuppressWarnings("PMD")
 public class Lunch {
@@ -91,9 +87,7 @@ public class Lunch {
 	}
 	
 	public static void main(String[] args) {
-		CachedRunnerFactory factory = new CachedRunnerFactory(new DefaultRunnerFactory());
-		LunchRunner runner = new LunchRunner(factory);
-		Luncher luncher = new Luncher(runner, Schedulers.fromExecutorService(Executors.newCachedThreadPool(), "local-lunch"));
+		LocalProcessLuncher luncher = new LocalProcessLuncher();
 		LocalLunchService lunchService = new LocalLunchService(luncher);
 		
 		int gatewayPort = args.length > 0 ? Integer.parseInt(args[0]) : 0;
