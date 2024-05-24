@@ -12,4 +12,11 @@ public interface LunchedItem {
 
 	Mono<Void> terminate(boolean force);
 
+	default boolean isAlive() {
+		return !exitCode().toFuture().isDone();
+	}
+
+	default Object getInfo() {
+		return getName() + ": " + getPid();
+	}
 }

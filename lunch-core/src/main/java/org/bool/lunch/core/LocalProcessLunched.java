@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.ToString;
 import reactor.core.publisher.Mono;
 
+import java.lang.ProcessHandle.Info;
+
 @ToString
 @AllArgsConstructor
 public class LocalProcessLunched implements LunchedItem {
@@ -22,6 +24,16 @@ public class LocalProcessLunched implements LunchedItem {
 	@Override
 	public String getPid() {
 		return String.valueOf(process.pid());
+	}
+
+	@Override
+	public Info getInfo() {
+		return process.info();
+	}
+
+	@Override
+	public boolean isAlive() {
+		return process.isAlive();
 	}
 
 	@Override
