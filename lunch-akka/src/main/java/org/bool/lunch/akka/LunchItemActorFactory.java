@@ -1,21 +1,20 @@
 package org.bool.lunch.akka;
 
-import org.bool.lunch.LunchBox;
 import org.bool.lunch.LunchItem;
-import org.bool.lunch.Lunched;
+import org.bool.lunch.api.Luncher;
 
 import akka.actor.typed.javadsl.ActorContext;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class LunchItemActorFactory {
 
-	private final LunchBox lunchBox;
+	private final Luncher luncher;
 	
-	public LunchItemActorFactory(LunchBox lunchBox) {
-		this.lunchBox = lunchBox;
-	}
-
 	public LunchItemActor create(ActorContext<Command> context, LunchItem item) {
-		Lunched lunched = lunchBox.launch(item, (i, ec) -> context.getSelf().tell(new LunchItemActor.Stopped(ec)));
+		var lunched = luncher.launch(item)
+			.doOnNext(process -> process.exitCode().subscribe(ec -> context.getSelf().tell(new LunchItemActor.Stopped(ec))))
+			.block();
 		return new LunchItemActor(context, lunched);
 	}
 }

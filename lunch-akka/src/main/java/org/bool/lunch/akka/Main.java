@@ -1,9 +1,7 @@
 package org.bool.lunch.akka;
 
-import org.bool.lunch.DefaultRunnerFactory;
 import org.bool.lunch.Lunch;
-import org.bool.lunch.LunchBox;
-import org.bool.lunch.LunchRunner;
+import org.bool.lunch.core.LocalProcessLuncher;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 import org.slf4j.Logger;
@@ -29,10 +27,8 @@ public class Main {
 	}
 	
 	private static void run(Lunch lunch) throws ClassNotFoundException {
-		DefaultRunnerFactory runnerFactory = new DefaultRunnerFactory();
-		LunchRunner runner = new LunchRunner(runnerFactory);
-		LunchBox lunchBox = new LunchBox(runner);
-		AkkaPad lunchPad = new AkkaPad(new LunchItemActorFactory(lunchBox));
+		var luncher = new LocalProcessLuncher();
+		AkkaPad lunchPad = new AkkaPad(new LunchItemActorFactory(luncher));
 		lunchPad.launch(lunch);
 	}
 	
