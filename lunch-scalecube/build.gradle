@@ -10,6 +10,7 @@ dependencies {
 	implementation "io.scalecube:scalecube-services-transport-jackson"
 	implementation "io.scalecube:scalecube-services-transport-rsocket"
 	implementation "io.scalecube:scalecube-services"
+	implementation "io.scalecube:scalecube-transport-netty"
 	implementation "org.apache.commons:commons-lang3"
 
 	runtimeOnly "ch.qos.logback:logback-classic"

@@ -18,6 +18,7 @@ import io.scalecube.services.gateway.GatewayOptions;
 import io.scalecube.services.registry.api.ServiceRegistry;
 import io.scalecube.services.transport.api.DataCodec;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
+import io.scalecube.transport.netty.tcp.TcpTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -75,6 +76,7 @@ public class Lunch {
 
 	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {
 		return new ScalecubeServiceDiscovery()
+				.transport(transportConfig -> transportConfig.transportFactory(new TcpTransportFactory()))
 				.options(clusterConfig -> clusterConfig.membership(this::membership))
 				;
 	}
