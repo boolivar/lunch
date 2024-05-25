@@ -3,15 +3,14 @@ package org.bool.lunch.scalecube.gateway;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.QueryStringDecoder;
 import io.scalecube.services.api.ServiceMessage;
 import io.scalecube.services.transport.api.DataCodec;
 import reactor.core.publisher.Mono;
@@ -36,17 +35,16 @@ public class LunchHttpHandler implements BiFunction<HttpServerRequest, HttpServe
 				.map(buf -> createMessage(request, buf))
 				.flatMap(messageProcessor)
 				.flatMap(message -> encodeResponse(response, message))
-				.doOnNext(response::sendObject)
-				.then()
+				.transform(response::sendObject)
 				;
 	}
 
 	private ServiceMessage createMessage(HttpServerRequest request, ByteBuf buf) {
-		QueryStringDecoder decoder = new QueryStringDecoder(request.uri());
-		Map<String, String> headers = decoder.parameters().entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().get(0)));
+		var headers = Stream.concat(request.params() != null ? request.params().entrySet().stream() : Stream.of(),
+				request.requestHeaders().entries().stream())
+			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b));
 		return ServiceMessage.builder()
-				.qualifier(decoder.path())
+				.qualifier(request.path())
 				.headers(headers)
 				.data(buf)
 				.build();
@@ -59,7 +57,6 @@ public class LunchHttpHandler implements BiFunction<HttpServerRequest, HttpServe
 		if (message.hasData(ByteBuf.class)) {
 			return Mono.just(message.data());
 		}
-		
 		ByteBuf buffer = response.alloc().buffer();
 		try {
 			dataCodec.encode(new ByteBufOutputStream(buffer), message.data());
