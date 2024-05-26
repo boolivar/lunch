@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import reactor.core.publisher.Flux;
@@ -51,8 +52,7 @@ public class LocalLunchService implements LunchService {
 	}
 
 	private Mono<LunchInfo> buildInfo(LunchedItem lunched) {
-		return lunched.isAlive()
-				? Mono.just(new LunchInfo(lunched.getPid(), lunched.getName(), lunched.getInfo(), null))
-				: lunched.exitCode().map(ec -> new LunchInfo(lunched.getPid(), lunched.getName(), lunched.getInfo(), ec));
+		return (lunched.isAlive() ? Mono.<Integer>empty() : lunched.exitCode()).materialize()
+			.map(signal -> new LunchInfo(lunched.getPid(), lunched.getName(), Objects.toString(lunched.getInfo(), null), signal.get()));
 	}
 }
