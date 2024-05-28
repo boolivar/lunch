@@ -11,6 +11,10 @@ public class NettyHttpGatewayServerFactory implements HttpGatewayServerFactory {
 
 	private final HttpGatewayHandlerFactory handlerFactory;
 
+	public NettyHttpGatewayServerFactory() {
+		this(serviceCall -> new DirectHttpGatewayHandler(serviceCall)::handle);
+	}
+
 	@Override
 	public Mono<? extends DisposableServer> create(String host, int port, ServiceCall serviceCall) {
 		return Mono.defer(() -> HttpServer.create()
