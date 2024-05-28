@@ -1,100 +1,85 @@
 package org.bool.lunch.scalecube;
 
 import org.bool.lunch.core.LocalProcessLuncher;
-import org.bool.lunch.scalecube.gateway.LunchHttpGateway;
-import org.bool.lunch.scalecube.gateway.LunchHttpHandler;
-import org.bool.lunch.scalecube.gateway.LunchHttpServer;
-import org.bool.lunch.scalecube.gateway.LunchMessageProcessor;
+import org.bool.lunch.scalecube.gateway.HttpGateway;
+import org.bool.lunch.scalecube.gateway.NettyHttpGatewayServerFactory;
 
 import io.scalecube.cluster.membership.MembershipConfig;
 import io.scalecube.net.Address;
 import io.scalecube.services.Microservices;
-import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.discovery.api.ServiceDiscovery;
 import io.scalecube.services.discovery.api.ServiceDiscoveryEvent;
-import io.scalecube.services.gateway.Gateway;
-import io.scalecube.services.gateway.GatewayOptions;
 import io.scalecube.services.registry.api.ServiceRegistry;
-import io.scalecube.services.transport.api.DataCodec;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import io.scalecube.transport.netty.tcp.TcpTransportFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
-@SuppressWarnings("PMD")
+@Slf4j
 public class Lunch {
-	
-	private static final Logger log = LoggerFactory.getLogger(Lunch.class);
-	
-	private static final String CONTENT_TYPE = "application/json";
-	
+
 	private static final String ROLE_KEY = "role";
-	
+
 	private static final String NODE_KEY = "node";
-	
+
 	private static final String MASTER_TAG = "master";
-	
-	private static final String WORKER_TAG = "worker";
 
 	private final LunchService service;
-	
-	private final int gatewayPort;
-	
-	private final Address seed;
+
+	private final String host;
+
+	private final int port;
+
+	private final String role;
 
 	private final ServiceRegistry serviceRegistry;
 
-	public Lunch(LunchService service, int gatewayPort, Address seed, ServiceRegistry serviceRegistry) {
+	public Lunch(LunchService service, String host, int port, String role, ServiceRegistry serviceRegistry) {
 		this.service = service;
-		this.gatewayPort = gatewayPort;
-		this.seed = seed;
+		this.host = host;
+		this.port = port;
+		this.role = role;
 		this.serviceRegistry = serviceRegistry;
 	}
 	
 	public Mono<Microservices> launch() {
-		return Microservices.builder()
+		var microservices = Microservices.builder()
 				.services(service)
-				.gateway(this::gateway)
-				.discovery(this::discovery)
+				.discovery(serviceEndpoint -> discovery())
 				.serviceRegistry(serviceRegistry)
 				.transport(RSocketServiceTransport::new)
-				.tags(Collections.singletonMap(ROLE_KEY, seed == null ? MASTER_TAG : WORKER_TAG))
-				.start()
+				.tags(Collections.singletonMap(ROLE_KEY, role))
 				;
-	}
-	
-	private Gateway gateway(GatewayOptions options) {
-		LunchMessageProcessor messageProcessor = new LunchMessageProcessor(options.call().methodRegistry(null), serviceRegistry);
-		LunchHttpHandler handler = new LunchHttpHandler(messageProcessor, DataCodec.getInstance(CONTENT_TYPE));
-		LunchHttpServer httpServer = new LunchHttpServer("localhost", gatewayPort, handler);
-		return new LunchHttpGateway(options, httpServer);
+		if (MASTER_TAG.equalsIgnoreCase(role)) {
+			microservices.gateway(options -> new HttpGateway(options.id("http").port(port), host, new NettyHttpGatewayServerFactory()));
+		}
+		return microservices.start();
 	}
 
-	private ServiceDiscovery discovery(ServiceEndpoint endpoint) {
+	private ServiceDiscovery discovery() {
 		return new ScalecubeServiceDiscovery()
 				.transport(transportConfig -> transportConfig.transportFactory(new TcpTransportFactory()))
 				.options(clusterConfig -> clusterConfig.membership(this::membership))
 				;
 	}
-	
+
 	private MembershipConfig membership(MembershipConfig config) {
-		if (seed != null) {
-			return config.seedMembers(seed);
-		}
-		return config;
+		return MASTER_TAG.equalsIgnoreCase(role) ? config : config.seedMembers(Address.create(host, port));
 	}
-	
+
 	public static void main(String[] args) {
 		LocalProcessLuncher luncher = new LocalProcessLuncher();
 		LocalLunchService lunchService = new LocalLunchService(luncher);
-		
-		int gatewayPort = args.length > 0 ? Integer.parseInt(args[0]) : 0;
-		Address seed = args.length > 1 ? Address.from(args[1]) : null;
-		
+
+		var address = args.length > 0 ? StringUtils.split(args[0], ':') : new String[] {"0"};
+		var host = address.length > 1 ? address[0] : "localhost";
+		var port = Integer.parseInt(address.length == 1 ? address[0] : address[1]);
+		var role = args.length > 1 ? args[1] : MASTER_TAG;
+
 		ServiceFilter serviceFilter = new ServiceFilterFactory()
 				.withQualifier()
 				.withContentType()
@@ -102,8 +87,8 @@ public class Lunch {
 				.withId(NODE_KEY)
 				.create();
 		LunchServiceRegistry serviceRegistry = new LunchServiceRegistry(serviceFilter);
-		
-		Lunch lunch = new Lunch(lunchService, gatewayPort, seed, serviceRegistry);
+
+		Lunch lunch = new Lunch(lunchService, host, port, role, serviceRegistry);
 		
 		try (Microservices microservices = lunch.launch().blockOptional().orElseThrow()) {
 			log.info("Service discovery: {}", microservices.discoveryAddress());
