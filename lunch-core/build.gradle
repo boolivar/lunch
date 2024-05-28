@@ -23,6 +23,4 @@ dependencies {
 	implementation "com.hierynomus:sshj"
 	implementation "commons-io:commons-io"
 	implementation "org.apache.commons:commons-lang3"
-
-	testImplementation "io.projectreactor:reactor-test"
 }
