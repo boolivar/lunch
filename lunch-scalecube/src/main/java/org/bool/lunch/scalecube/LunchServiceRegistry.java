@@ -1,15 +1,15 @@
 package org.bool.lunch.scalecube;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
 import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.ServiceReference;
 import io.scalecube.services.api.ServiceMessage;
 import io.scalecube.services.registry.api.ServiceRegistry;
 import lombok.AllArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 @AllArgsConstructor
 public class LunchServiceRegistry implements ServiceRegistry {
@@ -39,14 +39,14 @@ public class LunchServiceRegistry implements ServiceRegistry {
 
 	private List<ServiceReference> findServiceReferences(Predicate<ServiceReference> filter) {
 		return endpoints.values().stream()
-				.flatMap(e -> e.serviceReferences().stream())
-				.filter(filter)
-				.toList();
+			.flatMap(e -> e.serviceReferences().stream())
+			.filter(filter)
+			.toList();
 	}
 	
 	@Override
 	public boolean registerService(ServiceEndpoint serviceEndpoint) {
-		return endpoints.putIfAbsent(serviceEndpoint.id(),  serviceEndpoint) == null;
+		return endpoints.putIfAbsent(serviceEndpoint.id(), serviceEndpoint) == null;
 	}
 
 	@Override
