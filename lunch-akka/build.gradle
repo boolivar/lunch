@@ -18,6 +18,8 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3"
 	implementation "org.slf4j:slf4j-api"
 
+	testImplementation "com.typesafe.akka:akka-actor-testkit-typed_$scalaVersion"
+
 	runtimeOnly "ch.qos.logback:logback-classic"
 	runtimeOnly "com.typesafe.akka:akka-slf4j_$scalaVersion"
 	runtimeOnly "org.slf4j:log4j-over-slf4j"
