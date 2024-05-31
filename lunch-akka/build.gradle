@@ -12,7 +12,6 @@ jar {
 dependencies {
 	implementation project(":lunch-core")
 	implementation "com.fasterxml.jackson.core:jackson-databind"
-	implementation "com.lightbend.akka.management:akka-management-cluster-http_$scalaVersion"
 	implementation "com.typesafe.akka:akka-cluster-typed_$scalaVersion"
 	implementation "commons-io:commons-io"
 	implementation "io.projectreactor.netty:reactor-netty"

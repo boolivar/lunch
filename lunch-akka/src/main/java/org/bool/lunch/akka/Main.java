@@ -5,6 +5,7 @@ import org.bool.lunch.akka.actors.LunchActor;
 import org.bool.lunch.akka.actors.LunchCommand;
 
 import akka.actor.typed.ActorSystem;
+import akka.cluster.typed.Cluster;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -29,8 +30,13 @@ public class Main {
 	}
 
 	public void run(String host, int port) {
+		new AkkaCluster().join(lunchSystem);
 		HttpServer.create().host(host).port(port)
-			.route(routes -> routes.post("/launch", this::launch).post("/land/{name}", this::land).get("/stats", this::stats))
+			.route(routes -> routes
+				.post("/launch", this::launch)
+				.post("/land/{name}", this::land)
+				.get("/stats", this::stats)
+				.get("/cluster", this::cluster))
 			.bindNow()
 			.onDispose().block();
 	}
@@ -59,6 +65,11 @@ public class Main {
 	private Mono<Void> stats(HttpServerRequest request, HttpServerResponse response) {
 		return request.receive().aggregate()
 			.then(response.sendString(Mono.fromSupplier(lunchSystem::printTree)).then());
+	}
+
+	private Mono<Void> cluster(HttpServerRequest request, HttpServerResponse response) {
+		return request.receive().aggregate()
+			.then(response.sendString(Mono.just(lunchSystem).map(Cluster::get).map(Cluster::state).map(String::valueOf)).then());
 	}
 
 	public static void main(String[] args) {
