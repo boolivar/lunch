@@ -9,12 +9,12 @@ javaPlatform {
 dependencies {
 	api platform("io.projectreactor:reactor-bom:2020.0.44")
 	api platform("io.scalecube:scalecube-bom:0.0.9")
+	api platform("com.fasterxml.jackson:jackson-bom:2.17.1")
 	api platform("com.typesafe.akka:akka-bom_$scalaVersion:2.8.5")
 	api platform("org.junit:junit-bom:5.10.2")
 	api platform("org.slf4j:slf4j-bom:2.0.13")
 	constraints {
 		api "com.esotericsoftware.yamlbeans:yamlbeans:1.13"
-		api "com.fasterxml.jackson.core:jackson-databind:2.17.1"
 		api "com.hierynomus:sshj:0.29.0"
 		api "com.lightbend.akka.management:akka-management-cluster-http_$scalaVersion:1.4.1"
 		api "commons-io:commons-io:2.16.1"
