@@ -1,42 +1,69 @@
 package org.bool.lunch.akka;
 
-import org.bool.lunch.Lunch;
-import org.bool.lunch.core.LocalProcessLuncher;
+import org.bool.lunch.LunchItem;
+import org.bool.lunch.akka.actors.LunchActor;
+import org.bool.lunch.akka.actors.LunchCommand;
 
-import com.esotericsoftware.yamlbeans.YamlReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import akka.actor.typed.ActorSystem;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
+import reactor.core.publisher.Mono;
+import reactor.netty.http.server.HttpServer;
+import reactor.netty.http.server.HttpServerRequest;
+import reactor.netty.http.server.HttpServerResponse;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class Main {
 
-	private static final String CONFIG_YML = "config.yml";
+	private final ObjectMapper jsonMapper = new ObjectMapper().findAndRegisterModules();
 
-	private static final Logger log = LoggerFactory.getLogger(Main.class);
+	private final ActorSystem<LunchCommand> lunchSystem;
 
-	public static void main(String[] args) throws InterruptedException, IOException, ReflectiveOperationException {
-		Lunch lunch = loadLunch(args.length > 0 ? args[0] : null);
-		log.info("Lunch loaded: {}", lunch);
-		run(lunch);
-		log.info("Lunch finished");
+	public Main(ActorSystem<LunchCommand> lunchSystem) {
+		this.lunchSystem = lunchSystem;
 	}
-	
-	private static void run(Lunch lunch) throws ClassNotFoundException {
-		var luncher = new LocalProcessLuncher();
-		AkkaPad lunchPad = new AkkaPad(new LunchItemActorFactory(luncher));
-		lunchPad.launch(lunch);
+
+	public void run(String host, int port) {
+		HttpServer.create().host(host).port(port)
+			.route(routes -> routes.post("/launch", this::launch).post("/land/{name}", this::land).get("/stats", this::stats))
+			.bindNow()
+			.onDispose().block();
 	}
-	
-	private static Lunch loadLunch(String fileName) throws IOException {
-		Path configPath = Paths.get(fileName != null ? fileName : CONFIG_YML);
-		log.info("Read lunch from file: {}", configPath);
-		try (Reader reader = Files.newBufferedReader(configPath)) {
-			return new YamlReader(reader).read(Lunch.class);
+
+	private Mono<Void> launch(HttpServerRequest request, HttpServerResponse response) {
+		return request.receive().aggregate()
+			.map(this::parseItem)
+			.doOnNext(item -> lunchSystem.tell(new LunchCommand.Launch(item)))
+			.then(response.sendString(Mono.just("Success")).then());
+	}
+
+	@SneakyThrows
+	private LunchItem parseItem(ByteBuf buf) {
+		try (var in = new InputStreamReader(new ByteBufInputStream(buf), StandardCharsets.UTF_8)) {
+			return jsonMapper.readValue(in, LunchItem.class);
 		}
+	}
+
+	private Mono<Void> land(HttpServerRequest request, HttpServerResponse response) {
+		return request.receive().aggregate()
+			.then(Mono.just(request.param("name")))
+			.doOnNext(name -> lunchSystem.tell(new LunchCommand.Land(name)))
+			.then(response.sendString(Mono.just("Success")).then());
+	}
+
+	private Mono<Void> stats(HttpServerRequest request, HttpServerResponse response) {
+		return request.receive().aggregate()
+			.then(response.sendString(Mono.fromSupplier(lunchSystem::printTree)).then());
+	}
+
+	public static void main(String[] args) {
+		var address = args.length > 0 ? StringUtils.split(args[0], ':') : new String[] { "0" };
+		var hostport = address.length > 1 ? address : new String[] { "localhost", address[0] };
+		new Main(ActorSystem.create(LunchActor.create(), "Lunch")).run(hostport[0], Integer.parseInt(hostport[1]));
 	}
 }

@@ -15,6 +15,7 @@ dependencies {
 	implementation "com.lightbend.akka.management:akka-management-cluster-http_$scalaVersion"
 	implementation "com.typesafe.akka:akka-cluster-typed_$scalaVersion"
 	implementation "commons-io:commons-io"
+	implementation "io.projectreactor.netty:reactor-netty"
 	implementation "org.apache.commons:commons-lang3"
 	implementation "org.slf4j:slf4j-api"
 
