@@ -22,5 +22,6 @@ dependencies {
 
 	runtimeOnly "ch.qos.logback:logback-classic"
 	runtimeOnly "com.typesafe.akka:akka-slf4j_$scalaVersion"
+	runtimeOnly "com.typesafe.akka:akka-serialization-jackson_$scalaVersion"
 	runtimeOnly "org.slf4j:log4j-over-slf4j"
 }
