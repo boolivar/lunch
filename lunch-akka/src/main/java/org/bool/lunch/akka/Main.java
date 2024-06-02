@@ -1,20 +1,36 @@
 package org.bool.lunch.akka;
 
 import org.bool.lunch.akka.actors.LunchActor;
-import org.bool.lunch.akka.actors.LunchCommand;
 
 import akka.actor.typed.ActorSystem;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import reactor.netty.DisposableServer;
 
+@AllArgsConstructor
 public class Main {
 
 	public static void main(String[] args) {
-		var address = args.length > 0 ? StringUtils.split(args[0], ':') : new String[] { "0" };
-		var hostport = address.length > 1 ? address : new String[] { "localhost", address[0] };
-		ActorSystem<LunchCommand> actorSystem = ActorSystem.create(LunchActor.create(), "Lunch");
-		new AkkaCluster().join(actorSystem);
-		new HttpGateway(actorSystem).listen(hostport[0], Integer.parseInt(hostport[1]))
-			.flatMap(DisposableServer::onDispose).block();
+		var address = address(args);
+		if (StringUtils.startsWith(address, "akka://")) {
+			run(new AkkaCluster(address), null, 0);
+		} else {
+			var gateway = StringUtils.split(address, ':');
+			run(new AkkaCluster(), gateway[0], Integer.parseInt(gateway[1]));
+		}
+	}
+
+	public static void run(AkkaCluster cluster, String gatewayHost, int gatewayPort) {
+		var actorSystem = ActorSystem.create(LunchActor.create(), "Lunch");
+		cluster.join(actorSystem);
+		if (gatewayHost != null) {
+			new HttpGateway(actorSystem).listen(gatewayHost, gatewayPort)
+				.flatMap(DisposableServer::onDispose).block();
+		}
+	}
+
+	private static String address(String... args) {
+		var address = args.length > 0 ? args[0] : "5000";
+		return StringUtils.contains(address, ':') ? address : "localhost:" + address;
 	}
 }
