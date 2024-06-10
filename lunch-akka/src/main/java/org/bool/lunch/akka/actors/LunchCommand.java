@@ -5,7 +5,7 @@ import org.bool.lunch.akka.Command;
 import org.bool.lunch.api.LunchedItem;
 
 public sealed interface LunchCommand extends Command
-	permits LunchCommand.Launch, LunchCommand.Lunched, LunchCommand.Land, LunchCommand.Status {
+	permits LunchCommand.Launch, LunchCommand.Lunched, LunchCommand.Land, LunchCommand.Terminated, LunchCommand.Status {
 
 	record Launch(LunchItem item) implements LunchCommand {
 	}
@@ -14,6 +14,9 @@ public sealed interface LunchCommand extends Command
 	}
 
 	record Land(String name) implements LunchCommand {
+	}
+
+	record Terminated(LunchedItem item) implements LunchCommand {
 	}
 
 	record Status() implements LunchCommand {
