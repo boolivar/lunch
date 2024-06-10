@@ -4,6 +4,8 @@ import org.bool.lunch.LunchItem;
 import org.bool.lunch.akka.Command;
 import org.bool.lunch.api.LunchedItem;
 
+import akka.actor.typed.ActorRef;
+
 public sealed interface LunchCommand extends Command
 	permits LunchCommand.Launch, LunchCommand.Lunched, LunchCommand.Land, LunchCommand.Terminated, LunchCommand.Status {
 
@@ -19,6 +21,6 @@ public sealed interface LunchCommand extends Command
 	record Terminated(LunchedItem item) implements LunchCommand {
 	}
 
-	record Status() implements LunchCommand {
+	record Status(ActorRef<StatusResponse> replyTo) implements LunchCommand {
 	}
 }

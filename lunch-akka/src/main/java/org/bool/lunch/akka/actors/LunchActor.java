@@ -42,6 +42,7 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 			.onMessage(LunchCommand.Lunched.class, this::lunched)
 			.onMessage(LunchCommand.Land.class, this::land)
 			.onMessage(LunchCommand.Terminated.class, this::terminated)
+			.onMessage(LunchCommand.Status.class, this::status)
 			.build();
 	}
 
@@ -66,6 +67,12 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 	private Behavior<LunchCommand> terminated(LunchCommand.Terminated terminated) {
 		getContext().getLog().info("Terminated: {}", terminated);
 		terminatedItems.computeIfAbsent(terminated.item().getName(), k -> new ArrayList<>()).add(terminated.item());
+		return this;
+	}
+
+	private Behavior<LunchCommand> status(LunchCommand.Status status) {
+		var lunchedStatus = new LunchedItemCommand.Status(status.replyTo());
+		getContext().getChildren().forEach(ch -> ch.unsafeUpcast().tell(lunchedStatus));
 		return this;
 	}
 }

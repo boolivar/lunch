@@ -32,6 +32,7 @@ public class LunchedItemActor extends AbstractBehavior<LunchedItemCommand> {
 		return newReceiveBuilder()
 			.onMessage(LunchedItemCommand.Terminate.class, this::terminate)
 			.onMessage(LunchedItemCommand.Terminated.class, this::terminated)
+			.onMessage(LunchedItemCommand.Status.class, this::status)
 			.onSignal(PostStop.class, this::postStop)
 			.build();
 	}
@@ -45,6 +46,12 @@ public class LunchedItemActor extends AbstractBehavior<LunchedItemCommand> {
 	private Behavior<LunchedItemCommand> terminated(LunchedItemCommand.Terminated terminated) {
 		getContext().getLog().info("Item {}: {}", item, terminated);
 		return Behaviors.stopped();
+	}
+
+	private Behavior<LunchedItemCommand> status(LunchedItemCommand.Status status) {
+		var response = new StatusResponse(item.getName(), item.getPid(), item.getInfo(), item.exitCode().toFuture().getNow(null));
+		status.replyTo().tell(response);
+		return this;
 	}
 
 	private Behavior<LunchedItemCommand> postStop(PostStop signal) {
