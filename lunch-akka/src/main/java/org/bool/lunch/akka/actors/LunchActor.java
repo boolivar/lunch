@@ -9,6 +9,8 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.receptionist.Receptionist;
+import akka.actor.typed.receptionist.ServiceKey;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 public class LunchActor extends AbstractBehavior<LunchCommand> {
+
+	public static final ServiceKey<LunchCommand> SERVICE_KEY = ServiceKey.create(LunchCommand.class, "LUNCH");
 
 	private final Luncher luncher;
 
@@ -26,7 +30,12 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 	}
 
 	public static Behavior<LunchCommand> create(Luncher luncher) {
-		return Behaviors.setup(context -> new LunchActor(context, luncher, new HashMap<>()));
+		return Behaviors.setup(context -> create(context, luncher));
+	}
+
+	public static Behavior<LunchCommand> create(ActorContext<LunchCommand> context, Luncher luncher) {
+		context.getSystem().receptionist().tell(Receptionist.register(SERVICE_KEY, context.getSelf()));
+		return new LunchActor(context, luncher, new HashMap<>());
 	}
 
 	LunchActor(ActorContext<LunchCommand> context, Luncher luncher, HashMap<String, List<LunchedItem>> terminatedItems) {
