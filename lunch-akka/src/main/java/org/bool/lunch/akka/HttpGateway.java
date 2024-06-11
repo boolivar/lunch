@@ -1,9 +1,10 @@
 package org.bool.lunch.akka;
 
 import org.bool.lunch.LunchItem;
-import org.bool.lunch.akka.actors.LunchCommand;
+import org.bool.lunch.akka.actors.ClusterGuardianCommand;
 
 import akka.actor.typed.ActorSystem;
+import akka.actor.typed.javadsl.AskPattern;
 import akka.cluster.typed.Cluster;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
@@ -18,15 +19,16 @@ import reactor.netty.http.server.HttpServerResponse;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @RequiredArgsConstructor
 public class HttpGateway {
 
-	private final ActorSystem<? super LunchCommand> lunchSystem;
+	private final ActorSystem<? super ClusterGuardianCommand> lunchSystem;
 
 	private final ObjectMapper jsonMapper;
 
-	public HttpGateway(ActorSystem<? super LunchCommand> lunchSystem) {
+	public HttpGateway(ActorSystem<? super ClusterGuardianCommand> lunchSystem) {
 		this(lunchSystem, new ObjectMapper().findAndRegisterModules());
 	}
 
@@ -36,6 +38,7 @@ public class HttpGateway {
 				.post("/launch", this::launch)
 				.post("/land/{name}", this::land)
 				.get("/stats", this::stats)
+				.get("/tree", this::tree)
 				.get("/cluster", this::cluster))
 			.bind();
 	}
@@ -43,7 +46,7 @@ public class HttpGateway {
 	private Mono<Void> launch(HttpServerRequest request, HttpServerResponse response) {
 		return request.receive().aggregate()
 			.map(this::parseItem)
-			.doOnNext(item -> lunchSystem.tell(new LunchCommand.Launch(item)))
+			.doOnNext(item -> lunchSystem.tell(new ClusterGuardianCommand.Launch(item)))
 			.then(response.send());
 	}
 
@@ -57,11 +60,26 @@ public class HttpGateway {
 	private Mono<Void> land(HttpServerRequest request, HttpServerResponse response) {
 		return request.receive().aggregate()
 			.then(Mono.just(request.param("name")))
-			.doOnNext(name -> lunchSystem.tell(new LunchCommand.Land(name)))
+			.doOnNext(name -> lunchSystem.tell(new ClusterGuardianCommand.Land(name)))
 			.then(response.send());
 	}
 
 	private Mono<Void> stats(HttpServerRequest request, HttpServerResponse response) {
+		return request.receive().aggregate()
+			.then(response.sendString(status()).then());
+	}
+
+	private Mono<String> status() {
+		return Mono.fromCompletionStage(AskPattern.ask(lunchSystem, ClusterGuardianCommand.Status::new, Duration.ofSeconds(10), lunchSystem.scheduler()))
+			.map(this::toJson);
+	}
+
+	@SneakyThrows
+	private String toJson(Object value) {
+		return jsonMapper.writeValueAsString(value);
+	}
+
+	private Mono<Void> tree(HttpServerRequest request, HttpServerResponse response) {
 		return request.receive().aggregate()
 			.then(response.sendString(Mono.fromSupplier(lunchSystem::printTree)).then());
 	}

@@ -1,6 +1,6 @@
 package org.bool.lunch.akka;
 
-import org.bool.lunch.akka.actors.LunchActor;
+import org.bool.lunch.akka.actors.ClusterGuardianActor;
 
 import akka.actor.typed.ActorSystem;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public class Main {
 	}
 
 	public static void run(AkkaCluster cluster, String gatewayHost, int gatewayPort) {
-		var actorSystem = ActorSystem.create(LunchActor.create(), "Lunch");
+		var actorSystem = ActorSystem.create(ClusterGuardianActor.create(), "LunchGuardian");
 		cluster.join(actorSystem);
 		if (gatewayHost != null) {
 			new HttpGateway(actorSystem).listen(gatewayHost, gatewayPort)
