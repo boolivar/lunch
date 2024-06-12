@@ -2,6 +2,7 @@ package org.bool.lunch.akka.actors;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
+import akka.actor.typed.Terminated;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
@@ -46,26 +47,41 @@ public class ClusterStatusRequestActor extends AbstractBehavior<ClusterStatusReq
 			.onMessage(ClusterStatusRequestCommand.ClusterListing.class, this::listing)
 			.onMessage(ClusterStatusRequestCommand.LunchStatus.class, this::status)
 			.onMessageEquals(ClusterStatusRequestCommand.Timeout.EXPIRED, this::expired)
+			.onSignal(Terminated.class, this::terminated)
 			.build();
 	}
 
 	private Behavior<ClusterStatusRequestCommand> listing(ClusterStatusRequestCommand.ClusterListing listing) {
 		var instances = listing.response().getServiceInstances(LunchActor.SERVICE_KEY);
+		var request = new LunchCommand.Status(getContext().getSelf().narrow());
+		instances.forEach(instance -> {
+			instance.tell(request);
+			getContext().watch(instance);
+		});
 		size = instances.size();
-		instances.forEach(instance -> instance.tell(new LunchCommand.Status(getContext().getSelf().narrow())));
-		return this;
+		return respond();
 	}
 
 	private Behavior<ClusterStatusRequestCommand> status(ClusterStatusRequestCommand.LunchStatus status) {
 		stats.put(status.id(), status.stats());
-		if (stats.size() == size) {
-			replyTo.tell(new ClusterStatusResponse(stats));
-			return Behaviors.stopped();
-		}
-		return this;
+		return respond();
+	}
+
+	private Behavior<ClusterStatusRequestCommand> terminated(Terminated terminated) {
+		--size;
+		return respond();
 	}
 
 	private Behavior<ClusterStatusRequestCommand> expired() {
+		return reply();
+	}
+
+	private Behavior<ClusterStatusRequestCommand> respond() {
+		return stats.size() >= size ? reply() : this;
+	}
+
+	private Behavior<ClusterStatusRequestCommand> reply() {
+		replyTo.tell(new ClusterStatusResponse(stats));
 		return Behaviors.stopped();
 	}
 }
