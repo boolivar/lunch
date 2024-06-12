@@ -28,7 +28,7 @@ public class LunchStatusRequestActor extends AbstractBehavior<LunchStatusRequest
 		if (!lunched.isEmpty()) {
 			var request = new LunchedItemCommand.Status(context.getSelf().narrow());
 			lunched.forEach(actor -> actor.tell(request));
-			lunched.forEach(actor -> context.watch(actor));
+			lunched.forEach(context::watch);
 			return new LunchStatusRequestActor(context, replyTo, new ArrayList<>(lunched.size()), lunched.size());
 		}
 		return respond(context, replyTo, List.of());
@@ -55,7 +55,7 @@ public class LunchStatusRequestActor extends AbstractBehavior<LunchStatusRequest
 		return respond();
 	}
 
-	private Behavior<LunchStatusRequestCommand> terminated(Terminated terminated) {
+	private Behavior<LunchStatusRequestCommand> terminated(Terminated terminated) { // NOPMD
 		--size;
 		return respond();
 	}

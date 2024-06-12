@@ -67,7 +67,7 @@ public class ClusterStatusRequestActor extends AbstractBehavior<ClusterStatusReq
 		return respond();
 	}
 
-	private Behavior<ClusterStatusRequestCommand> terminated(Terminated terminated) {
+	private Behavior<ClusterStatusRequestCommand> terminated(Terminated terminated) { // NOPMD
 		--size;
 		return respond();
 	}
