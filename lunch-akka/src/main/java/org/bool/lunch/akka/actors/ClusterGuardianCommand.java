@@ -8,12 +8,12 @@ import akka.actor.typed.ActorRef;
 public sealed interface ClusterGuardianCommand extends Command
 	permits ClusterGuardianCommand.Launch, ClusterGuardianCommand.Land, ClusterGuardianCommand.Status {
 
-	public record Launch(LunchItem item) implements ClusterGuardianCommand {
+	record Launch(LunchItem item) implements ClusterGuardianCommand {
 	}
 
-	public record Land(String name) implements ClusterGuardianCommand {
+	record Land(String name) implements ClusterGuardianCommand {
 	}
 
-	public record Status(ActorRef<StatusResponse> replyTo) implements ClusterGuardianCommand {
+	record Status(ActorRef<ClusterStatusResponse> replyTo) implements ClusterGuardianCommand {
 	}
 }

@@ -29,6 +29,7 @@ public class ClusterGuardianActor extends AbstractBehavior<ClusterGuardianComman
 		return newReceiveBuilder()
 			.onMessage(ClusterGuardianCommand.Launch.class, this::launch)
 			.onMessage(ClusterGuardianCommand.Land.class, this::land)
+			.onMessage(ClusterGuardianCommand.Status.class, this::status)
 			.build();
 	}
 
@@ -39,6 +40,11 @@ public class ClusterGuardianActor extends AbstractBehavior<ClusterGuardianComman
 
 	public Behavior<ClusterGuardianCommand> land(ClusterGuardianCommand.Land land) {
 		lunch.tell(new LunchCommand.Land(land.name()));
+		return this;
+	}
+
+	public Behavior<ClusterGuardianCommand> status(ClusterGuardianCommand.Status status) {
+		getContext().spawnAnonymous(ClusterStatusRequestActor.create(status.replyTo()));
 		return this;
 	}
 }
