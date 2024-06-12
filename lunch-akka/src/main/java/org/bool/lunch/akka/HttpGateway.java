@@ -7,6 +7,7 @@ import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
 import akka.cluster.typed.Cluster;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class HttpGateway {
 	private final ObjectMapper jsonMapper;
 
 	public HttpGateway(ActorSystem<? super ClusterGuardianCommand> lunchSystem) {
-		this(lunchSystem, new ObjectMapper().findAndRegisterModules());
+		this(lunchSystem, new ObjectMapper().findAndRegisterModules().enable(SerializationFeature.INDENT_OUTPUT));
 	}
 
 	public Mono<? extends DisposableServer> listen(String host, int port) {
