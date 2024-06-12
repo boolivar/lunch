@@ -4,6 +4,7 @@ import org.bool.lunch.api.LunchedItem;
 import org.bool.lunch.api.Luncher;
 import org.bool.lunch.core.LocalProcessLuncher;
 
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
@@ -23,6 +24,8 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 
 	private final Luncher luncher;
 
+	private final Map<String, ActorRef<LunchedItemCommand>> lunchedItems = new HashMap<>();
+
 	private final Map<String, List<LunchedItem>> terminatedItems;
 
 	public static Behavior<LunchCommand> create() {
@@ -38,7 +41,7 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 		return new LunchActor(context, luncher, new HashMap<>());
 	}
 
-	LunchActor(ActorContext<LunchCommand> context, Luncher luncher, HashMap<String, List<LunchedItem>> terminatedItems) {
+	LunchActor(ActorContext<LunchCommand> context, Luncher luncher, Map<String, List<LunchedItem>> terminatedItems) {
 		super(context);
 		this.luncher = luncher;
 		this.terminatedItems = terminatedItems;
@@ -65,6 +68,7 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 		getContext().getLog().info("Lunched: {}", lunched);
 		var actor = getContext().spawn(LunchedItemActor.create(lunched.item()), lunched.item().getName());
 		getContext().watchWith(actor, new LunchCommand.Terminated(lunched.item()));
+		lunchedItems.put(lunched.item().getName(), actor);
 		return this;
 	}
 
@@ -75,13 +79,13 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 
 	private Behavior<LunchCommand> terminated(LunchCommand.Terminated terminated) {
 		getContext().getLog().info("Terminated: {}", terminated);
+		lunchedItems.remove(terminated.item().getName());
 		terminatedItems.computeIfAbsent(terminated.item().getName(), k -> new ArrayList<>()).add(terminated.item());
 		return this;
 	}
 
 	private Behavior<LunchCommand> status(LunchCommand.Status status) {
-		var lunchedStatus = new LunchedItemCommand.Status(status.replyTo());
-		getContext().getChildren().forEach(ch -> ch.unsafeUpcast().tell(lunchedStatus));
+		getContext().spawnAnonymous(LunchStatusRequestActor.create(status.replyTo(), lunchedItems.values()));
 		return this;
 	}
 }

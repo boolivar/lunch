@@ -21,6 +21,6 @@ public sealed interface LunchCommand extends Command
 	record Terminated(LunchedItem item) implements LunchCommand {
 	}
 
-	record Status(ActorRef<StatusResponse> replyTo) implements LunchCommand {
+	record Status(ActorRef<ClusterStatusRequestCommand.LunchStatus> replyTo) implements LunchCommand {
 	}
 }

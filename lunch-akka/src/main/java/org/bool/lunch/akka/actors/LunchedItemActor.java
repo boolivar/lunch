@@ -9,6 +9,8 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
+import java.util.Objects;
+
 public class LunchedItemActor extends AbstractBehavior<LunchedItemCommand> {
 
 	private final LunchedItem item;
@@ -49,8 +51,8 @@ public class LunchedItemActor extends AbstractBehavior<LunchedItemCommand> {
 	}
 
 	private Behavior<LunchedItemCommand> status(LunchedItemCommand.Status status) {
-		var response = new StatusResponse(item.getName(), item.getPid(), item.getInfo(), item.exitCode().toFuture().getNow(null));
-		status.replyTo().tell(response);
+		var response = new StatusResponse(item.getName(), item.getPid(), Objects.toString(item.getInfo(), null));
+		status.replyTo().tell(new LunchStatusRequestCommand.Status(response));
 		return this;
 	}
 

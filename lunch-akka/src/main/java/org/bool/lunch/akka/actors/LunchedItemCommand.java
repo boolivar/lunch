@@ -13,6 +13,6 @@ public sealed interface LunchedItemCommand extends Command
 	record Terminated(Integer exitCode) implements LunchedItemCommand {
 	}
 
-	record Status(ActorRef<StatusResponse> replyTo) implements LunchedItemCommand {
+	record Status(ActorRef<LunchStatusRequestCommand.Status> replyTo) implements LunchedItemCommand {
 	}
 }
