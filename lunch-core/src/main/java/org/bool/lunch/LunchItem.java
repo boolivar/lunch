@@ -23,6 +23,8 @@ public class LunchItem {
 
 	private List<String> args;
 
+	private List<LunchItem> items;
+
 	private Map<String, String> env;
 
 	private File workDir;
