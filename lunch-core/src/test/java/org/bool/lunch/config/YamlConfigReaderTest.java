@@ -3,10 +3,12 @@ package org.bool.lunch.config;
 import org.bool.lunch.Lunch;
 import org.bool.lunch.LunchItem;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -40,35 +42,25 @@ class YamlConfigReaderTest {
 	}
 
 	@Test
-	void testDeepItemsRoundtrip() throws IOException {
-		var yaml = """
-			items:
-			- name: zookeeper
-			  command: org.apache.zookeeper.server.quorum.QuorumPeerMain
-			  args:
-			  - c:\\bin\\kafka_2.11-1.0.0\\config\\zookeeper.properties
-			- name: kafka
-			  command: kafka.Kafka
-			  args:
-			  - c:\\bin\\kafka_2.11-1.0.0\\config\\server.properties
-			- name: lunch
-			  command: java -jar lunch.jar
-			  items:
-			    - name: lunch
-			      command: java -jar lunch.jar
-			      items:
-			        - name: kibana
-			          command: c:\\bin\\kibana-7.17.21\\bin\\kibana.bat
-			          workDir: c:\\bin\\kibana-7.17.21\\
-			    - name: elasticsearch
-			      command: c:\\bin\\elasticsearch-7.17.3\\bin\\elasticsearch.bat
-			      workDir: c:\\bin\\elasticsearch-7.17.3\\bin
-			""";
+	void testDeepItems() throws IOException {
+		var yaml = IOUtils.resourceToString("/deep-config.yml", StandardCharsets.UTF_8);
 		var lunch = yamlReader.read(() -> new StringReader(yaml), Lunch.class).block();
-		var items = lunch.getItems().get(2).getItems();
-		var subYaml = yamlReader.toYamlString(new Lunch(items)).block();
+		var args = lunch.getItems().get(0).getArgs();
+		assertThat(args)
+			.hasSize(1);
 
-		assertThat(yamlReader.read(() -> new StringReader(subYaml), Lunch.class).block())
-			.isEqualTo(new Lunch(items));
+		var level1 = yamlReader.read(() -> new StringReader(args.get(0)), Lunch.class).block();
+		assertThat(level1.getItems())
+			.hasSize(2)
+			.extracting(LunchItem::getName)
+			.containsExactly("lunch", "elasticsearch");
+		assertThat(level1.getItems().get(0).getArgs())
+			.hasSize(1);
+
+		var level2 = yamlReader.read(() -> new StringReader(level1.getItems().get(0).getArgs().get(0)), Lunch.class).block();
+		assertThat(level2.getItems())
+			.singleElement()
+			.returns("kibana", LunchItem::getName)
+			;
 	}
 }

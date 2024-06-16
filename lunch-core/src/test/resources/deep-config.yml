@@ -1,0 +1,17 @@
+items:
+- name: lunch
+  command: java -jar lunch.jar
+  args:
+  - |
+    items:
+    - name: lunch
+      command: java -jar lunch.jar
+      args:
+      - |
+        items:
+        - name: kibana
+          command: c:\\bin\\kibana-7.17.21\\bin\\kibana.bat
+          workDir: c:\\bin\\kibana-7.17.21\\
+    - name: elasticsearch
+      command: c:\\bin\\elasticsearch-7.17.3\\bin\\elasticsearch.bat
+      workDir: c:\\bin\\elasticsearch-7.17.3\\bin
