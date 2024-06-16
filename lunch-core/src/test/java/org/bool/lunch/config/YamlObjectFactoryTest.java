@@ -4,7 +4,6 @@ import org.bool.lunch.LunchItem;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +53,6 @@ class YamlObjectFactoryTest {
 			.thenReturn(Mono.just(lunchExample));
 	}
 
-	@AfterEach
 	void verifyYamlReaderCall() throws Exception {
 		verify(yamlReader).read(captor.capture(), same(LunchItem.class));
 		try (Reader reader = captor.getValue().call()) {
@@ -64,28 +62,38 @@ class YamlObjectFactoryTest {
 	}
 
 	@Test
-	void testFile() throws IOException {
+	void testFile() throws Exception {
 		var file = tempDir.resolve("test-file");
 		Files.writeString(file, TEST_CONTENT);
 		assertThat(factory.readFile(file).block())
 			.isSameAs(lunchExample);
+		verifyYamlReaderCall();
 	}
 
 	@Test
-	void testResource() {
+	void testResource() throws Exception {
 		assertThat(factory.readResource("/test").block())
 			.isSameAs(lunchExample);
+		verifyYamlReaderCall();
 	}
 
 	@Test
-	void testReader() throws IOException {
-		assertThat(factory.read(() -> new StringReader(TEST_CONTENT)).block())
+	void testString() throws Exception {
+		assertThat(factory.readString(TEST_CONTENT).block())
 			.isSameAs(lunchExample);
+		verify(yamlReader).read(captor.capture(), same(LunchItem.class));
+		try (Reader reader = captor.getValue().call()) {
+			assertThat(reader)
+				.isInstanceOf(StringReader.class);
+			assertThat(IOUtils.buffer(reader).readLine())
+				.isEqualTo(TEST_CONTENT);
+		}
 	}
 
 	@Test
-	void testInputStream() throws IOException {
+	void testInputStream() throws Exception {
 		assertThat(factory.readStream(() -> IOUtils.toInputStream(TEST_CONTENT, StandardCharsets.UTF_8)).block())
 			.isSameAs(lunchExample);
+		verifyYamlReaderCall();
 	}
 }

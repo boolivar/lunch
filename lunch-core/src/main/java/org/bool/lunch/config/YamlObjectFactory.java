@@ -2,13 +2,13 @@ package org.bool.lunch.config;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.apache.commons.io.IOUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -34,19 +34,23 @@ public class YamlObjectFactory<T> {
 	}
 
 	public Mono<T> readFile(Path file) {
-		return yamlReader.read(() -> Files.newBufferedReader(file, charset), type);
+		return read(() -> Files.newBufferedReader(file, charset));
 	}
 
 	public Mono<T> readResource(String resource) {
-		return yamlReader.read(() -> bufferedReader(getClass().getResourceAsStream(resource)), type);
+		return read(() -> bufferedReader(getClass().getResourceAsStream(resource)));
 	}
 
 	public Mono<T> readStream(Callable<InputStream> inputStream) {
-		return yamlReader.read(() -> bufferedReader(inputStream.call()), type);
+		return read(() -> bufferedReader(inputStream.call()));
 	}
 
-	public Mono<T> read(Callable<Reader> reader) {
-		return yamlReader.read(() -> IOUtils.buffer(reader.call()), type);
+	public Mono<T> readString(String yaml) {
+		return read(() -> new StringReader(yaml));
+	}
+
+	private Mono<T> read(Callable<Reader> reader) {
+		return yamlReader.read(reader, type);
 	}
 
 	private BufferedReader bufferedReader(InputStream in) {
