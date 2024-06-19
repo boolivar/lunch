@@ -13,6 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Lunch {
 
+	private String address;
+
 	private List<LunchItem> items;
 
 }
