@@ -20,6 +20,7 @@ dependencies {
 	implementation "com.fasterxml.jackson.core:jackson-databind"
 	implementation "com.typesafe.akka:akka-cluster-typed_$scalaVersion"
 	implementation "commons-io:commons-io"
+	implementation "info.picocli:picocli"
 	implementation "io.projectreactor.netty:reactor-netty"
 	implementation "org.apache.commons:commons-lang3"
 

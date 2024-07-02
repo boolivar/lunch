@@ -21,6 +21,7 @@ dependencies {
 		api "org.apache.commons:commons-lang3:3.14.0"
 		api "org.assertj:assertj-core:3.25.3"
 		api "org.mockito:mockito-junit-jupiter:5.10.0"
+		api "info.picocli:picocli:4.7.6"
 
 		runtime "ch.qos.logback:logback-classic:1.5.6"
 	}

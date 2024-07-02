@@ -3,7 +3,6 @@ package org.bool.lunch.akka;
 import org.bool.lunch.Lunch;
 import org.bool.lunch.akka.actors.ClusterGuardianActor;
 import org.bool.lunch.akka.actors.ClusterGuardianCommand;
-import org.bool.lunch.config.YamlObjectFactory;
 
 import akka.actor.Address;
 import akka.actor.AddressFromURIString;
@@ -13,7 +12,6 @@ import akka.cluster.typed.Join;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -22,14 +20,18 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AkkaLunch {
 
-	public Mono<ActorSystem<ClusterGuardianCommand>> run(Lunch lunch) {
-		var address = StringUtils.firstNonEmpty(lunch.getAddress(), System.getenv("LUNCH_ADDRESS"), "localhost:5000");
+	public static final String LUNCH_ADDRESS_ENV = "LUNCH_ADDRESS";
+
+	private final Lunch lunch;
+
+	public Mono<ActorSystem<ClusterGuardianCommand>> run() {
+		var address = StringUtils.firstNonEmpty(lunch.getAddress(), System.getenv(LUNCH_ADDRESS_ENV), "localhost:5000");
 		return address.startsWith("akka://")
-			? run(lunch, Optional.of(AddressFromURIString.parse(address)))
-			: run(lunch, Optional.empty(), StringUtils.split(address, ':'));
+			? run(Optional.of(AddressFromURIString.parse(address)))
+			: run(Optional.empty(), StringUtils.split(address, ':'));
 	}
 
-	private Mono<ActorSystem<ClusterGuardianCommand>> run(Lunch lunch, Optional<Address> bootstrap, String... gatewayAddress) {
+	private Mono<ActorSystem<ClusterGuardianCommand>> run(Optional<Address> bootstrap, String... gatewayAddress) {
 		var actorSystem = ActorSystem.create(ClusterGuardianActor.create(), "LunchGuardian");
 		var cluster = Cluster.get(actorSystem);
 		var selfAddress = cluster.selfMember().address();
@@ -47,13 +49,5 @@ public class AkkaLunch {
 				.thenReturn(actorSystem);
 		}
 		return Mono.just(actorSystem);
-	}
-
-	public static void main(String[] args) {
-		Flux.fromArray(args).next()
-			.flatMap(arg -> new YamlObjectFactory<>(Lunch.class).readString(arg))
-			.switchIfEmpty(Mono.fromSupplier(Lunch::new))
-			.flatMap(lunch -> new AkkaLunch().run(lunch))
-			.block();
 	}
 }
