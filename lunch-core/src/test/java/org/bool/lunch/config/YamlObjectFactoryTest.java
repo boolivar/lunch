@@ -52,14 +52,6 @@ class YamlObjectFactoryTest {
 			.thenReturn(Mono.just(lunchExample));
 	}
 
-	void verifyYamlReaderCall() throws Exception {
-		verify(yamlReader).read(captor.capture(), same(LunchItem.class));
-		try (Reader reader = captor.getValue().call()) {
-			assertThat(((BufferedReader) reader).readLine())
-				.isEqualTo(TEST_CONTENT);
-		}
-	}
-
 	@Test
 	void testFile() throws Exception {
 		var file = tempDir.resolve("test-file");
@@ -94,5 +86,13 @@ class YamlObjectFactoryTest {
 		assertThat(factory.readStream(() -> IOUtils.toInputStream(TEST_CONTENT, StandardCharsets.UTF_8)).block())
 			.isSameAs(lunchExample);
 		verifyYamlReaderCall();
+	}
+
+	private void verifyYamlReaderCall() throws Exception {
+		verify(yamlReader).read(captor.capture(), same(LunchItem.class));
+		try (Reader reader = captor.getValue().call()) {
+			assertThat(((BufferedReader) reader).readLine())
+				.isEqualTo(TEST_CONTENT);
+		}
 	}
 }
