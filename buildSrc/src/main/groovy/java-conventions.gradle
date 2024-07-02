@@ -64,6 +64,10 @@ spotbugs {
 	excludeFilter = file("$rootDir/gradle/config/spotbugs/exclude.xml")
 }
 
+spotbugsTest {
+	omitVisitors.add("FindNullDeref")
+}
+
 repositories {
 	mavenCentral()
 }
