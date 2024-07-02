@@ -1,8 +1,14 @@
 plugins {
 	id "java-library-conventions"
+	id "org.springframework.boot" version "3.3.0"
 }
 
 jar {
+	enabled = false
+}
+
+bootJar {
+	dependsOn jar
 	manifest {
 		attributes("Automatic-Module-Name": "org.bool.lunch.core")
 		attributes("Add-Opens": "java.base/jdk.internal.loader=org.bool.lunch.core")
