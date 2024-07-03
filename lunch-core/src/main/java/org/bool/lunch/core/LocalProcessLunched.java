@@ -4,6 +4,7 @@ import org.bool.lunch.api.LunchedItem;
 
 import lombok.AllArgsConstructor;
 import lombok.ToString;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.ProcessHandle.Info;
@@ -44,6 +45,8 @@ public class LocalProcessLunched implements LunchedItem {
 
 	@Override
 	public Mono<Void> terminate(boolean force) {
-		return Mono.fromRunnable(force ? process::destroyForcibly : process::destroy);
+		return Flux.fromStream(process.descendants())
+			.doOnNext(force ? ProcessHandle::destroyForcibly : ProcessHandle::destroy)
+			.then();
 	}
 }

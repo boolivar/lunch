@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
@@ -40,22 +41,30 @@ class LocalProcessLunchedTest {
 
 	@Test
 	void testTerminate() {
+		var processHandle = mock(ProcessHandle.class);
+		given(process.descendants())
+			.willReturn(Stream.of(processHandle));
+
 		var mono = lunched.terminate(false);
-		verifyNoInteractions(process);
+		verifyNoInteractions(processHandle);
 
 		StepVerifier.create(mono)
 			.verifyComplete();
-		verify(process).destroy();
+		verify(processHandle).destroy();
 	}
 
 	@Test
 	void testForceTerminate() {
+		var processHandle = mock(ProcessHandle.class);
+		given(process.descendants())
+			.willReturn(Stream.of(processHandle));
+
 		var mono = lunched.terminate(true);
-		verifyNoInteractions(process);
+		verifyNoInteractions(processHandle);
 
 		StepVerifier.create(mono)
 			.expectSubscription()
 			.verifyComplete();
-		verify(process).destroyForcibly();
+		verify(processHandle).destroyForcibly();
 	}
 }
