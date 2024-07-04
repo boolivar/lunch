@@ -38,6 +38,7 @@ public class HttpGateway {
 			.route(routes -> routes
 				.post("/launch", this::launch)
 				.post("/land/{name}", this::land)
+				.post("/land", this::land)
 				.get("/stats", this::stats)
 				.get("/tree", this::tree)
 				.get("/cluster", this::cluster))
@@ -60,8 +61,7 @@ public class HttpGateway {
 
 	private Mono<Void> land(HttpServerRequest request, HttpServerResponse response) {
 		return request.receive().aggregate()
-			.then(Mono.just(request.param("name")))
-			.doOnNext(name -> lunchSystem.tell(new ClusterGuardianCommand.Land(name)))
+			.doOnSuccess(buf -> lunchSystem.tell(new ClusterGuardianCommand.Land(request.param("name"))))
 			.then(response.send());
 	}
 

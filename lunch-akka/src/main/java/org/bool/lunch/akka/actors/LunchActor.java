@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class LunchActor extends AbstractBehavior<LunchCommand> {
 
@@ -73,7 +74,9 @@ public class LunchActor extends AbstractBehavior<LunchCommand> {
 	}
 
 	private Behavior<LunchCommand> land(LunchCommand.Land land) {
-		getContext().getChild(land.name()).ifPresent(ref -> ref.unsafeUpcast().tell(new LunchedItemCommand.Terminate(false)));
+		var terminate = new LunchedItemCommand.Terminate(false);
+		(land.name() != null ? Stream.ofNullable(lunchedItems.get(land.name())) : lunchedItems.values().stream())
+			.forEach(item -> item.tell(terminate));
 		return this;
 	}
 
