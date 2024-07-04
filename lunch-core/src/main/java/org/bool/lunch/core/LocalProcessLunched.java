@@ -45,7 +45,7 @@ public class LocalProcessLunched implements LunchedItem {
 
 	@Override
 	public Mono<Void> terminate(boolean force) {
-		return Flux.fromStream(process.descendants())
+		return Flux.just(process.toHandle()).startWith(process.descendants().toList())
 			.doOnNext(force ? ProcessHandle::destroyForcibly : ProcessHandle::destroy)
 			.then();
 	}

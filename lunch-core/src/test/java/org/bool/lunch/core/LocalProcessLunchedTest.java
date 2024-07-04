@@ -2,10 +2,15 @@ package org.bool.lunch.core;
 
 import org.bool.lunch.api.LunchedItem;
 
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import reactor.test.StepVerifier;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,32 +44,36 @@ class LocalProcessLunchedTest {
 			.verifyComplete();
 	}
 
-	@Test
-	void testTerminate() {
+	@MethodSource
+	@ParameterizedTest
+	void testTerminate(boolean force, Consumer<ProcessHandle> destroyMethod) {
 		var processHandle = mock(ProcessHandle.class);
+		var childHandle = mock(ProcessHandle.class);
+
+		given(process.toHandle())
+			.willReturn(processHandle);
 		given(process.descendants())
-			.willReturn(Stream.of(processHandle));
+			.willReturn(Stream.of(childHandle));
 
-		var mono = lunched.terminate(false);
-		verifyNoInteractions(processHandle);
-
-		StepVerifier.create(mono)
-			.verifyComplete();
-		verify(processHandle).destroy();
-	}
-
-	@Test
-	void testForceTerminate() {
-		var processHandle = mock(ProcessHandle.class);
-		given(process.descendants())
-			.willReturn(Stream.of(processHandle));
-
-		var mono = lunched.terminate(true);
+		var mono = lunched.terminate(force);
 		verifyNoInteractions(processHandle);
 
 		StepVerifier.create(mono)
 			.expectSubscription()
 			.verifyComplete();
-		verify(processHandle).destroyForcibly();
+
+		destroyMethod.accept(verify(processHandle));
+		destroyMethod.accept(verify(childHandle));
+	}
+
+	static Stream<Arguments> testTerminate() {
+		return Stream.of(
+			Arguments.of(false, namedMethod("destroy", ProcessHandle::destroy)),
+			Arguments.of(true, namedMethod("destroyForcibly", ProcessHandle::destroyForcibly))
+		);
+	}
+
+	private static <T> Named<Consumer<T>> namedMethod(String name, Consumer<T> methodRef) {
+		return Named.of(name, methodRef);
 	}
 }
