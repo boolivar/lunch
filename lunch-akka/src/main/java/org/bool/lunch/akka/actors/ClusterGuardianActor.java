@@ -41,7 +41,7 @@ public class ClusterGuardianActor extends AbstractBehavior<ClusterGuardianComman
 
 	public Behavior<ClusterGuardianCommand> land(ClusterGuardianCommand.Land land) {
 		var landActor = getContext()
-			.spawnAnonymous(Behaviors.receive(Receptionist.Listing.class).onAnyMessage(listing -> land(listing, land)).build());
+			.spawnAnonymous(Behaviors.<Receptionist.Listing>receiveMessage(listing -> land(listing, land)));
 		getContext().getSystem().receptionist().tell(Receptionist.find(LunchActor.SERVICE_KEY, landActor));
 		return this;
 	}
@@ -53,7 +53,7 @@ public class ClusterGuardianActor extends AbstractBehavior<ClusterGuardianComman
 
 	private Behavior<Receptionist.Listing> land(Receptionist.Listing listing, ClusterGuardianCommand.Land land) {
 		var landLunch = new LunchCommand.Land(land.name());
-		listing.getServiceInstances(LunchActor.SERVICE_KEY).forEach(lunch -> lunch.tell(landLunch));
+		listing.getServiceInstances(LunchActor.SERVICE_KEY).forEach(actor -> actor.tell(landLunch));
 		return Behaviors.stopped();
 	}
 }
