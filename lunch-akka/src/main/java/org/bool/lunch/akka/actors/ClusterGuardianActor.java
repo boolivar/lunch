@@ -6,6 +6,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.receptionist.Receptionist;
 
 public class ClusterGuardianActor extends AbstractBehavior<ClusterGuardianCommand> {
 
@@ -39,12 +40,20 @@ public class ClusterGuardianActor extends AbstractBehavior<ClusterGuardianComman
 	}
 
 	public Behavior<ClusterGuardianCommand> land(ClusterGuardianCommand.Land land) {
-		lunch.tell(new LunchCommand.Land(land.name()));
+		var landActor = getContext()
+			.spawnAnonymous(Behaviors.receive(Receptionist.Listing.class).onAnyMessage(listing -> land(listing, land)).build());
+		getContext().getSystem().receptionist().tell(Receptionist.find(LunchActor.SERVICE_KEY, landActor));
 		return this;
 	}
 
 	public Behavior<ClusterGuardianCommand> status(ClusterGuardianCommand.Status status) {
 		getContext().spawnAnonymous(ClusterStatusRequestActor.create(status.replyTo()));
 		return this;
+	}
+
+	private Behavior<Receptionist.Listing> land(Receptionist.Listing listing, ClusterGuardianCommand.Land land) {
+		var landLunch = new LunchCommand.Land(land.name());
+		listing.getServiceInstances(LunchActor.SERVICE_KEY).forEach(lunch -> lunch.tell(landLunch));
+		return Behaviors.stopped();
 	}
 }
