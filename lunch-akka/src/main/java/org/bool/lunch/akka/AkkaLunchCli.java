@@ -30,6 +30,9 @@ public class AkkaLunchCli implements Runnable {
 		}
 	}
 
+	@Option(names = "--address", description = "bootstrap address")
+	private String address;
+
 	@ArgGroup
 	private Config config;
 
@@ -38,7 +41,7 @@ public class AkkaLunchCli implements Runnable {
 		Mono.justOrEmpty(config)
 			.flatMap(Config::load)
 			.switchIfEmpty(Mono.fromSupplier(Lunch::new))
-			.map(AkkaLunch::new)
+			.map(lunch -> address != null ? new AkkaLunch(address, lunch) : new AkkaLunch(lunch))
 			.flatMap(AkkaLunch::run)
 			.block();
 	}

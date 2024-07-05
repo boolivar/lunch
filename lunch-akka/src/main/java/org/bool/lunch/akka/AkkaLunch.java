@@ -22,10 +22,15 @@ public class AkkaLunch {
 
 	public static final String LUNCH_ADDRESS_ENV = "LUNCH_ADDRESS";
 
+	private final String address;
+
 	private final Lunch lunch;
 
+	public AkkaLunch(Lunch lunch) {
+		this(StringUtils.defaultIfEmpty(System.getenv(LUNCH_ADDRESS_ENV), "localhost:5000"), lunch);
+	}
+
 	public Mono<ActorSystem<ClusterGuardianCommand>> run() {
-		var address = StringUtils.firstNonEmpty(lunch.getAddress(), System.getenv(LUNCH_ADDRESS_ENV), "localhost:5000");
 		return address.startsWith("akka://")
 			? run(Optional.of(AddressFromURIString.parse(address)))
 			: run(Optional.empty(), StringUtils.split(address, ':'));
