@@ -27,11 +27,10 @@ public class LocalLunchService implements LunchService {
 	}
 
 	@Override
-	public Flux<LunchInfo> launch(LunchItem item) {
+	public Mono<LunchInfo> launch(LunchItem item) {
 		return luncher.launch(item)
 				.doOnNext(lunched -> lunchedMap.put(lunched.getPid(), lunched))
 				.flatMap(this::buildInfo)
-				.flux()
 				;
 	}
 

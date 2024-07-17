@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,9 +42,9 @@ class LocalLunchServiceTest {
 
 		var result = service.launch(item);
 
-		assertThat(List.of(result.blockFirst(), result.blockLast()))
+		assertThat(result.block())
 			.extracting(LunchInfo::getPid, LunchInfo::getExitCode)
-			.containsOnly(tuple("test-pid", 44))
+			.containsExactly("test-pid", 44)
 			;
 	}
 }
