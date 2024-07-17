@@ -31,12 +31,12 @@ class LocalLunchServiceTest {
 
 	@Test
 	void testLaunch(@Mock LunchedItem lunched) {
-		var item = LunchItem.builder().name("test-cmd").type("test").command("cmd").args(List.of()).build();
+		var item = LunchItem.builder().name("test-cmd").command("cmd").args(List.of()).build();
 
 		given(luncher.launch(item))
 			.willReturn((Mono) Mono.just(lunched));
 		given(lunched.getName())
-			.willReturn("test");
+			.willReturn("launch-test");
 		given(lunched.getPid())
 			.willReturn("test-pid");
 		given(lunched.exitCode())
@@ -46,7 +46,7 @@ class LocalLunchServiceTest {
 		verifyNoInteractions(lunched);
 
 		StepVerifier.create(result)
-			.expectNext(new LunchInfo("test-pid", "test", null, 44))
+			.expectNext(new LunchInfo("test-pid", "launch-test", null, 44))
 			.expectComplete()
 			.verify()
 			;
@@ -55,7 +55,7 @@ class LocalLunchServiceTest {
 	@Test
 	void testLand(@Mock LunchedItem item) {
 		given(item.getName())
-			.willReturn("test");
+			.willReturn("land-test");
 		given(item.getPid())
 			.willReturn("id");
 		given(item.exitCode())
@@ -70,7 +70,7 @@ class LocalLunchServiceTest {
 		verifyNoInteractions(item);
 
 		StepVerifier.create(result)
-			.expectNext(new LunchInfo("id", "test", null, 5))
+			.expectNext(new LunchInfo("id", "land-test", null, 5))
 			.expectComplete()
 			.verify();
 	}
