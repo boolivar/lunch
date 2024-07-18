@@ -1,5 +1,9 @@
 plugins {
-	id "java-library-conventions"
+	id "native-application-conventions"
+}
+
+application {
+	mainClass = "org.bool.lunch.scalecube.Lunch"
 }
 
 dependencies {
